@@ -1,11 +1,9 @@
 import time, copy
 
-wl = 50
-
 hl = 100
 vl = 50
 
-world = [[0 for i in range(wl)] for j in range(wl)]
+world = [[0 for i in range(hl)] for j in range(vl)]
 
 world[10][10] = 1
 world[10][11] = 1
@@ -14,13 +12,13 @@ world[8][11] = 1
 world[9][12] = 1
 
 def update(oldworld):
-	newworld = [[0 for i in range(wl)] for j in range(wl)]
-	for row in range(wl):
-		for col in range(wl):
+	newworld = [[0 for i in range(hl)] for j in range(vl)]
+	for row in range(vl):
+		for col in range(hl):
 			ncount = 0
-			ncount += oldworld[(row-1)%wl][(col-1)%wl] + oldworld[(row-1)%wl][col] + oldworld[(row-1)%wl][(col+1)%wl]
-			ncount += oldworld[row][(col-1)%wl] + oldworld[row][(col+1)%wl]
-			ncount += oldworld[(row+1)%wl][(col-1)%wl] + oldworld[(row+1)%wl][col] + oldworld[(row+1)%wl][(col+1)%wl]
+			ncount += oldworld[(row-1)%vl][(col-1)%hl] + oldworld[(row-1)%vl][col] + oldworld[(row-1)%vl][(col+1)%hl]
+			ncount += oldworld[row][(col-1)%hl] + oldworld[row][(col+1)%hl]
+			ncount += oldworld[(row+1)%vl][(col-1)%hl] + oldworld[(row+1)%vl][col] + oldworld[(row+1)%vl][(col+1)%hl]
 			if (ncount < 2) or (ncount > 3):
 				newworld[row][col] = 0
 			elif ncount == 2 and oldworld[row][col] == 1:
@@ -30,8 +28,8 @@ def update(oldworld):
 	return newworld
 
 def draw(world):
-	for row in range(wl):
-		for col in range(wl):
+	for row in range(vl):
+		for col in range(hl):
 			if world[row][col] == 0:
 				print('.',end='')
 			else:

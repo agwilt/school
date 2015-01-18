@@ -69,6 +69,7 @@ def update(oldworld):
 	return newworld
 
 def quit():
+	"""exit cleanly. I might add stuff like a highscore."""
 	pygame.quit()
 	exit()
 
@@ -78,6 +79,7 @@ def cast(world, p_x, p_y, p_a, max_it=1000):
 	return 50 + math.degrees(p_a)
 
 def dist_to_offset(dist):
+	"""takes a distance (to an object), and returns the offset from the middle to start drawing the column."""
 	if dist == 0:
 		return plane_y * 0.5
 	elif dist == -1:
@@ -94,6 +96,7 @@ def walk(world, p_x, p_y, p_a):
 	return (p_x, p_y)
 
 def draw(world):
+	"""render the scene, by casting rays for each column"""
 	screen.fill((0,0,0))
 	angle = math.degrees(p_a - math.radians(fov/2))
 	for col in range(plane_x):
@@ -101,9 +104,9 @@ def draw(world):
 		if dist > 0:
 			pygame.draw.line(screen, (255,255,255), (col,((plane_y/2) - dist_to_offset(dist))), (col, (plane_y/2) + dist_to_offset(dist)))
 		angle = (angle + math.degrees(ray_angle)) % 360
-	print(p_x, p_y, p_a)
 	pygame.display.flip()
 
+#initialize pygame stuff
 pygame.init()
 screen = pygame.display.set_mode((plane_x,plane_y))
 clock = pygame.time.Clock()
@@ -132,7 +135,6 @@ while True:
 			p_a = (p_a - turn) % (2*math.pi)
 		if keys[K_RIGHT]: # turn right
 			p_a = (p_a + turn) % (2*math.pi)
-	print(p_x, p_y)
 	if world[p_x // TILE][p_y // TILE] == 1:
 		print("You got mown over. By a *cell*.")
 		quit()

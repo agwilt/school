@@ -2,7 +2,7 @@ School projects. I'll probably cringe when I look at this code in a few years.
 
 This is for the IT Facharbeit explaining ray casters.
 
-To demonstrate the ray caster, I'm making a simple game, Conway's Game of Life, rendered in 3D, because tree.
+To demonstrate the ray caster, I'm making a simple game, Conway's Game of Life, rendered in 3D, because [tree](http://mathartfun.com/shopsite_sc/store/html/Art/FractalTreeNo4.jpg).
 
 Ideas:
  - make life generation speed slow, but fast when you move/do something
@@ -20,7 +20,7 @@ Colours:
  - far away thing fade to white
  
 Useful links for me:
-https://en.wikipedia.org/wiki/Ray_casting
-http://www.fabiensanglard.net/wolf3d/index.php
-http://www.permadi.com/tutorial/raycast/index.html
-https://github.com/id-Software/wolf3d if I can find the interesting bits.
+ - https://en.wikipedia.org/wiki/Ray_casting
+ - http://www.fabiensanglard.net/wolf3d/index.php
+ - http://www.permadi.com/tutorial/raycast/index.html
+ - https://github.com/id-Software/wolf3d if I can find the interesting bits.

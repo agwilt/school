@@ -13,8 +13,8 @@ from pygame.locals import *
 TILE = 64
 
 # variables (maybe read from config file?)
-plane_x = 800 # resolution of plane/screen
-plane_y = 600
+plane_x = 320 # resolution of plane/screen
+plane_y = 200
 fov = math.radians(60)
 step = 10
 turn = math.radians(10)
@@ -22,7 +22,7 @@ turn = math.radians(10)
 # World Variables
 hl = 100 #horiz, vert height of field
 vl = 50
-world = [[0 for i in range(hl)] for j in range(vl)]
+world = [[0 for i in range(vl)] for j in range(hl)]
 p_x = 32 #player x,y
 p_y = 32
 p_a = 0 #pointing right
@@ -53,35 +53,56 @@ world[19][24] = 1
 world[21][24] = 1
 
 def update(oldworld):
-	newworld = [[0 for i in range(hl)] for j in range(vl)]
-	for row in range(vl):
-		for col in range(hl):
-			ncount = 0
-			ncount += oldworld[(row-1)%vl][(col-1)%hl] + oldworld[(row-1)%vl][col] + oldworld[(row-1)%vl][(col+1)%hl]
-			ncount += oldworld[row][(col-1)%hl] + oldworld[row][(col+1)%hl]
-			ncount += oldworld[(row+1)%vl][(col-1)%hl] + oldworld[(row+1)%vl][col] + oldworld[(row+1)%vl][(col+1)%hl]
+	"""Runs one *life* iteration, returns the new world"""
+	newworld = [[0 for i in range(vl)] for j in range(hl)]
+	for col in range(hl):
+		for row in range(vl):
+			ncount = oldworld[(col-1)%hl][(row-1)%vl] + oldworld[col][(row-1)%vl] + oldworld[(col+1)%hl][(row-1)%vl]
+			ncount += oldworld[(col-1)%hl][row] + oldworld[(col+1)%hl][row]
+			ncount += oldworld[(col-1)%hl][(row+1)%vl] + oldworld[col][(row+1)%vl] + oldworld[(col+1)%hl][(row+1)%vl]
 			if (ncount < 2) or (ncount > 3):
-				newworld[row][col] = 0
-			elif ncount == 2 and oldworld[row][col] == 1:
-				newworld[row][col] = 1
+				newworld[col][row] = 0
+			elif ncount == 2 and oldworld[col][row] == 1:
+				newworld[col][row] = 1
 			elif ncount == 3:
-				newworld[row][col] = 1
+				newworld[col][row] = 1
 	return newworld
 
 def quit():
+	pygame.quit()
 	exit()
 
+def cast(world, p_x, p_y, p_a, max_it=1000):
+	"""casts a ray, return distance, -1 if no collision"""
+	# return distance
+	return 50 + math.degrees(p_a)
+
+def dist_to_offset(dist):
+	if dist == 0:
+		return plane_y * 0.5
+	elif dist == -1:
+		return 0
+	else:
+		return (TILE / dist) * plane_d * 0.5
+
+def walk(world, p_x, p_y, p_a):
+	"""return new cords (p_x, p_y). You cannot walk into live cells or the walls"""
+	if world[p_x // TILE][p_y // TILE] == 1:
+		return (p_x,p_y)
+	p_y = int(p_y + math.sin(p_a) * step) % (vl*TILE) 
+	p_x = int(p_x + math.cos(p_a) * step) % (hl*TILE)
+	return (p_x, p_y)
+
 def draw(world):
-	for row in range(vl):
-		for col in range(hl):
-			if world[row][col] == 0:
-				print('.',end='')
-			else:
-				print('#',end='')
-		print('')
-	print('\n(%d,%d) A %d' % (p_x, p_y, math.degrees(p_a)))
-	if paused:
-		print("P A U S E D")
+	screen.fill((0,0,0))
+	angle = math.degrees(p_a - math.radians(fov/2))
+	for col in range(plane_x):
+		dist = cast(world, p_x, p_y, math.radians(angle))
+		if dist > 0:
+			pygame.draw.line(screen, (255,255,255), (col,((plane_y/2) - dist_to_offset(dist))), (col, (plane_y/2) + dist_to_offset(dist)))
+		angle = (angle + math.degrees(ray_angle)) % 360
+	print(p_x, p_y, p_a)
+	pygame.display.flip()
 
 pygame.init()
 screen = pygame.display.set_mode((plane_x,plane_y))
@@ -94,27 +115,27 @@ while True:
 	for event in pygame.event.get():
 		if event.type == QUIT:
 			quit()
-		if keys[K_p]:
-			paused = not paused
-		if not paused:
-			if keys[K_ESCAPE]:
-				quit()
-			if keys[K_UP] or keys[K_w]: # go forwards
-				p_y = (p_y + math.sin(p_a) * step) % vl
-				p_x = (p_x + math.cos(p_a) * step) % hl
-			if keys[K_DOWN] or keys[K_s]: # go back
-				p_y = (p_y - math.sin(p_a) * step) % vl
-				p_x = (p_x - math.cos(p_a) * step) % vl
-			if keys[K_a] or keys[K_COMMA]: # strafe left
-				p_y = (p_y + math.sin(p_a - math.radians(90)) * step) % vl
-				p_x = (p_x + math.cos(p_a - math.radians(90)) * step) % hl
-			if keys[K_d] or keys[K_PERIOD]: # strafe right
-				p_y = (p_y - math.sin(p_a + math.radians(90)) * step) % vl
-				p_x = (p_x - math.cos(p_a + math.radians(90)) * step) % hl
-			if keys[K_LEFT]: # turn left
-				p_a -= turn
-			if keys[K_RIGHT]: # turn right
-				p_a += turn
+	if keys[K_p]:
+		paused = not paused
+	if not paused:
+		if keys[K_ESCAPE]:
+			quit()
+		if keys[K_UP] or keys[K_w]: # go forwards
+			p_x, p_y = walk(world, p_x, p_y, p_a)
+		if keys[K_DOWN] or keys[K_s]: # go back
+			p_x, p_y = walk(world, p_x, p_y, (p_a + math.pi))
+		if keys[K_a] or keys[K_COMMA]: # strafe left
+			p_x, p_y = walk(world, p_x, p_y, (p_a - (0.5*math.pi)))
+		if keys[K_d] or keys[K_PERIOD]: # strafe right
+			p_x, p_y = walk(world, p_x, p_y, (p_a + (0.5*math.pi)))
+		if keys[K_LEFT]: # turn left
+			p_a = (p_a - turn) % (2*math.pi)
+		if keys[K_RIGHT]: # turn right
+			p_a = (p_a + turn) % (2*math.pi)
+	print(p_x, p_y)
+	if world[p_x // TILE][p_y // TILE] == 1:
+		print("You got mown over. By a *cell*.")
+		quit()
 	draw(world)
 	clock.tick(tick)
 	if not paused:

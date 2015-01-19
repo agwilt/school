@@ -13,8 +13,8 @@ from pygame.locals import *
 TILE = 64
 
 # variables (maybe read from config file?)
-plane_x = 320 # resolution of plane/screen
-plane_y = 200
+plane_x = 1280 # resolution of plane/screen
+plane_y = 720
 fov = math.radians(60)
 step = 10
 turn = math.radians(10)
@@ -105,6 +105,15 @@ def draw(world):
 			pygame.draw.line(screen, (255,255,255), (col,((plane_y/2) - dist_to_offset(dist))), (col, (plane_y/2) + dist_to_offset(dist)))
 		angle = (angle + math.degrees(ray_angle)) % 360
 	pygame.display.flip()
+	# print map to stdout
+	for row in range(vl):
+		for col in range(hl):
+			if world[col][row] == 0:
+				print('.',end='')
+			else:
+				print('#',end='')
+		print('')
+	print('\n')
 
 #initialize pygame stuff
 pygame.init()

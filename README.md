@@ -7,6 +7,8 @@ To demonstrate the ray caster, I'm making a simple game, Conway's Game of Life, 
 Ideas:
  - make life generation speed slow, but fast when you move/do something
  - add functionality to "kill" cell, thereby altering the game to save yourself.
+ - have light vector, so that different sides of the cubes have different colours
+ - also make things lighter with distance (like fog)
  
 Torus?
  - cells: probably

@@ -73,11 +73,17 @@ def quit():
 	pygame.quit()
 	exit()
 
-def cast(world, p_x, p_y, p_a):
+def cast(world, p_x, p_y, a):
 	"""casts a ray, return distance, -1 if no collision"""
+	# TODO: add special cases for (p_a == 0 or p_a == 180)
 	# max. it: use hl, vl
-	# return distance
-	return 50 + math.degrees(p_a)
+	# {x,y}_i are increments, h_{x,y} is the horiz point, v_{x,y} vertical
+	# OK, horizontal checks first. use TILE as x_i
+	y_i = TILE / math.tan(a)
+	if a < math.pi:
+		a = p_y
+	#write later
+	return 50 + math.degrees(a)
 
 def dist_to_offset(dist):
 	"""takes a distance (to an object), and returns the offset from the middle to start drawing the column."""
@@ -98,15 +104,17 @@ def walk(world, p_x, p_y, p_a):
 
 def draw(world):
 	"""render the scene, by casting rays for each column"""
-	screen.fill((0,0,0))
-	angle = math.degrees(p_a - math.radians(fov/2))
+	screen.fill((255,255,255))
+	pygame.draw.rect(screen, (200,200,200), ((0,(plane_y/2)),(plane_x,plane_y)))
+	angle = (p_a - (fov/2)) % (2*math.pi)
 	for col in range(plane_x):
-		dist = cast(world, p_x, p_y, math.radians(angle))
+		dist = cast(world, p_x, p_y, angle)
 		if dist > 0:
-			pygame.draw.line(screen, (255,255,255), (col,((plane_y/2) - dist_to_offset(dist))), (col, (plane_y/2) + dist_to_offset(dist)))
-		angle = (angle + math.degrees(ray_angle)) % 360
+			pygame.draw.line(screen, (0,0,0), (col,((plane_y/2) - dist_to_offset(dist))), (col, (plane_y/2) + dist_to_offset(dist)))
+		angle = (angle + ray_angle) % (2*math.pi)
 	pygame.display.flip()
 	# print map to stdout
+	print("(%d,%d) %d" % (p_x,p_y,math.degrees(p_a)))
 	for row in range(vl):
 		for col in range(hl):
 			if world[col][row] == 0:

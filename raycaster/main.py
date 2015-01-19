@@ -73,8 +73,9 @@ def quit():
 	pygame.quit()
 	exit()
 
-def cast(world, p_x, p_y, p_a, max_it=1000):
+def cast(world, p_x, p_y, p_a):
 	"""casts a ray, return distance, -1 if no collision"""
+	# max. it: use hl, vl
 	# return distance
 	return 50 + math.degrees(p_a)
 

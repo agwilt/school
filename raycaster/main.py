@@ -3,7 +3,7 @@ import pygame
 from pygame.locals import *
 
 # angles are in radians
-# (0,0) is in the top left
+# (0,0) is in the bottom left
 # 0 is pointing to the right
 # pi/2 is pointing up
 # pi is pointing left
@@ -79,9 +79,6 @@ def cast(world, p_x, p_y, a):
 	# max. it: use hl, vl
 	# {x,y}_i are increments, h_{x,y} is the horiz point, v_{x,y} vertical
 	# OK, horizontal checks first. use TILE as x_i
-	y_i = TILE / math.tan(a)
-	if a < math.pi:
-		a = p_y
 	#write later
 	return 50 + math.degrees(a)
 
@@ -106,23 +103,27 @@ def draw(world):
 	"""render the scene, by casting rays for each column"""
 	screen.fill((255,255,255))
 	pygame.draw.rect(screen, (200,200,200), ((0,(plane_y/2)),(plane_x,plane_y)))
-	angle = (p_a - (fov/2)) % (2*math.pi)
+	angle = (p_a + (fov/2)) % (2*math.pi)
 	for col in range(plane_x):
 		dist = cast(world, p_x, p_y, angle)
 		if dist > 0:
 			pygame.draw.line(screen, (0,0,0), (col,((plane_y/2) - dist_to_offset(dist))), (col, (plane_y/2) + dist_to_offset(dist)))
-		angle = (angle + ray_angle) % (2*math.pi)
+		angle = (angle - ray_angle) % (2*math.pi)
 	pygame.display.flip()
 	# print map to stdout
 	print("(%d,%d) %d" % (p_x,p_y,math.degrees(p_a)))
-	for row in range(vl):
+	"""
+	for row in range(vl-1,-1,-1):
 		for col in range(hl):
-			if world[col][row] == 0:
+			if (row,col) == (p_x // 64,p_y // 64):
+				print('x',end='')
+			elif world[col][row] == 0:
 				print('.',end='')
 			else:
 				print('#',end='')
 		print('')
 	print('\n')
+	"""
 
 #initialize pygame stuff
 pygame.init()
@@ -146,13 +147,13 @@ while True:
 		if keys[K_DOWN] or keys[K_s]: # go back
 			p_x, p_y = walk(world, p_x, p_y, (p_a + math.pi))
 		if keys[K_a] or keys[K_COMMA]: # strafe left
-			p_x, p_y = walk(world, p_x, p_y, (p_a - (0.5*math.pi)))
-		if keys[K_d] or keys[K_PERIOD]: # strafe right
 			p_x, p_y = walk(world, p_x, p_y, (p_a + (0.5*math.pi)))
+		if keys[K_d] or keys[K_PERIOD]: # strafe right
+			p_x, p_y = walk(world, p_x, p_y, (p_a - (0.5*math.pi)))
 		if keys[K_LEFT]: # turn left
-			p_a = (p_a - turn) % (2*math.pi)
-		if keys[K_RIGHT]: # turn right
 			p_a = (p_a + turn) % (2*math.pi)
+		if keys[K_RIGHT]: # turn right
+			p_a = (p_a - turn) % (2*math.pi)
 	if world[p_x // TILE][p_y // TILE] == 1:
 		print("You got mown over. By a *cell*.")
 		quit()

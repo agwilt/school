@@ -15,7 +15,7 @@ if "-d" in sys.argv:
 	debug = True
 
 # Constants (not really configurable)
-TILE = 64
+TILE = 32
 
 # variables (maybe read from config file?)
 plane_x = 1280 # resolution of plane/screen
@@ -121,7 +121,7 @@ def draw(world):
 	"""
 	for row in range(vl-1,-1,-1):
 		for col in range(hl):
-			if (row,col) == (p_x // 64,p_y // 64):
+			if (row,col) == (p_x // TILE,p_y // TILE):
 				print('x',end='')
 			elif world[col][row] == 0:
 				print('.',end='')

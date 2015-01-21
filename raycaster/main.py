@@ -21,8 +21,8 @@ TILE = 64
 plane_x = 1280 # resolution of plane/screen
 plane_y = 720
 fov = math.radians(60)
-step = 10
-turn = math.radians(10)
+step = 20
+turn = math.radians(5)
 
 # World Variables
 hl = 100 #horiz, vert height of field

@@ -2,7 +2,7 @@ School projects. I'll probably cringe when I look at this code in a few years.
 
 This is for the IT Facharbeit explaining ray casters.
 
-To demonstrate the ray caster, I'm making a simple game, Conway's Game of Life, rendered in 3D, because [tree](http://mathartfun.com/shopsite_sc/store/html/Art/FractalTreeNo4.jpg).
+To demonstrate the ray caster, I'm making a simple game, Conway's Game of Life, rendered in 3D, because ![tree](http://www.yaldex.com/game-programming/FILES/13fig06.gif).
 
 Ideas:
  - make life generation speed slow, but fast when you move/do something

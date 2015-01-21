@@ -1,13 +1,18 @@
-import time, math
+import time, math, sys
 import pygame
 from pygame.locals import *
 
 # angles are in radians
 # (0,0) is in the bottom left
 # 0 is pointing to the right
-# pi/2 is pointing up
+# pi/2 is pointing down
 # pi is pointing left
-# 1.5 pi is pointing down
+# 1.5 pi is pointing up
+
+debug = False
+
+if "-d" in sys.argv:
+	debug = True
 
 # Constants (not really configurable)
 TILE = 64
@@ -26,7 +31,7 @@ world = [[0 for i in range(vl)] for j in range(hl)]
 p_x = 32 #player x,y
 p_y = 32
 p_a = 0 #pointing right
-p_height = 32
+p_height = TILE / 2
 
 # computed variables
 plane_d = (plane_x / 2) / math.tan(fov/2) #distance from player to plane
@@ -80,7 +85,7 @@ def cast(world, p_x, p_y, a):
 	# {x,y}_i are increments, h_{x,y} is the horiz point, v_{x,y} vertical
 	# OK, horizontal checks first. use TILE as x_i
 	#write later
-	return 50 + math.degrees(a)
+	return math.degrees(a)
 
 def dist_to_offset(dist):
 	"""takes a distance (to an object), and returns the offset from the middle to start drawing the column."""
@@ -103,15 +108,16 @@ def draw(world):
 	"""render the scene, by casting rays for each column"""
 	screen.fill((255,255,255))
 	pygame.draw.rect(screen, (200,200,200), ((0,(plane_y/2)),(plane_x,plane_y)))
-	angle = (p_a + (fov/2)) % (2*math.pi)
+	angle = (p_a - (fov/2)) % (2*math.pi)
 	for col in range(plane_x):
 		dist = cast(world, p_x, p_y, angle)
 		if dist > 0:
 			pygame.draw.line(screen, (0,0,0), (col,((plane_y/2) - dist_to_offset(dist))), (col, (plane_y/2) + dist_to_offset(dist)))
-		angle = (angle - ray_angle) % (2*math.pi)
+		angle = (angle + ray_angle) % (2*math.pi)
 	pygame.display.flip()
 	# print map to stdout
-	print("(%d,%d) %d" % (p_x,p_y,math.degrees(p_a)))
+	if debug:
+		print("(%d,%d) %d" % (p_x,p_y,math.degrees(p_a)))
 	"""
 	for row in range(vl-1,-1,-1):
 		for col in range(hl):
@@ -147,16 +153,17 @@ while True:
 		if keys[K_DOWN] or keys[K_s]: # go back
 			p_x, p_y = walk(world, p_x, p_y, (p_a + math.pi))
 		if keys[K_a] or keys[K_COMMA]: # strafe left
-			p_x, p_y = walk(world, p_x, p_y, (p_a + (0.5*math.pi)))
-		if keys[K_d] or keys[K_PERIOD]: # strafe right
 			p_x, p_y = walk(world, p_x, p_y, (p_a - (0.5*math.pi)))
+		if keys[K_d] or keys[K_PERIOD]: # strafe right
+			p_x, p_y = walk(world, p_x, p_y, (p_a + (0.5*math.pi)))
 		if keys[K_LEFT]: # turn left
-			p_a = (p_a + turn) % (2*math.pi)
-		if keys[K_RIGHT]: # turn right
 			p_a = (p_a - turn) % (2*math.pi)
-	if world[p_x // TILE][p_y // TILE] == 1:
-		print("You got mown over. By a *cell*.")
-		quit()
+		if keys[K_RIGHT]: # turn right
+			p_a = (p_a + turn) % (2*math.pi)
+	if not debug:
+		if world[p_x // TILE][p_y // TILE] == 1:
+			print("You got mown over. By a *cell*.")
+			quit()
 	draw(world)
 	clock.tick(tick)
 	if not paused:

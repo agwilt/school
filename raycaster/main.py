@@ -85,6 +85,18 @@ def cast(world, p_x, p_y, a):
 	# {x,y}_i are increments, h_{x,y} is the horiz point, v_{x,y} vertical
 	# OK, horizontal checks first. use TILE as x_i
 	#write later
+	if a == 0:
+		print("0")
+		return hl * TILE - p_x
+	if a == math.pi:
+		print("180")
+		return p_x
+	if a == 0.5*math.pi:
+		print("90")
+		return p_y
+	if a == 1.5*math.pi:
+		print("270")
+		return vl * TILE - p_y
 	return math.degrees(a)
 
 def dist_to_offset(dist):
@@ -96,12 +108,12 @@ def dist_to_offset(dist):
 	else:
 		return (TILE / dist) * plane_d * 0.5
 
-def walk(world, p_x, p_y, p_a):
+def walk(world, p_x, p_y, a):
 	"""return new cords (p_x, p_y). You cannot walk into live cells or the walls"""
 	if world[p_x // TILE][p_y // TILE] == 1:
 		return (p_x,p_y)
-	p_y = int(p_y + math.sin(p_a) * step) % (vl*TILE) 
-	p_x = int(p_x + math.cos(p_a) * step) % (hl*TILE)
+	p_y = int(p_y + (math.sin(a) * step)) % (vl*TILE) 
+	p_x = int(p_x + (math.cos(a) * step)) % (hl*TILE)
 	return (p_x, p_y)
 
 def draw(world):
@@ -118,18 +130,17 @@ def draw(world):
 	# print map to stdout
 	if debug:
 		print("(%d,%d) %d" % (p_x,p_y,math.degrees(p_a)))
-	"""
-	for row in range(vl-1,-1,-1):
-		for col in range(hl):
-			if (row,col) == (p_x // TILE,p_y // TILE):
-				print('x',end='')
-			elif world[col][row] == 0:
-				print('.',end='')
-			else:
-				print('#',end='')
-		print('')
-	print('\n')
-	"""
+	if "-m" in sys.argv:
+		for row in range(vl-1,-1,-1):
+			for col in range(hl):
+				if (row,col) == (p_x // TILE,p_y // TILE):
+					print('x',end='')
+				elif world[col][row] == 0:
+					print('.',end='')
+				else:
+					print('#',end='')
+			print('')
+		print('\n')
 
 #initialize pygame stuff
 pygame.init()

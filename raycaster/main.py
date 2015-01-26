@@ -112,8 +112,9 @@ def walk(world, p_x, p_y, a):
 	"""return new cords (p_x, p_y). You cannot walk into live cells or the walls"""
 	if world[p_x // TILE][p_y // TILE] == 1:
 		return (p_x,p_y)
-	p_y = int(p_y - (math.sin(a) * step)) % (vl*TILE) 
-	p_x = int(p_x + (math.cos(a) * step)) % (hl*TILE)
+	if cast(world, p_x, p_y, p_a) >= step:
+		p_y = int(p_y - (math.sin(a) * step)) % (vl*TILE)
+		p_x = int(p_x + (math.cos(a) * step)) % (hl*TILE)
 	return (p_x, p_y)
 
 def draw(world):

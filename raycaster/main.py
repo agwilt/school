@@ -87,6 +87,10 @@ def cast(world, p_x, p_y, a):
 	#write later
 	if world[p_x // 64][p_y // 64] == 1:
 		return -1
+	if a == 0 or a == math.pi: # horizontal
+		# cast with constant x_i, y_i = 0
+	if a == 0.5*math.pi or a == 1.5*math.pi: # vertical
+		# cast with constant y_i, x_i = 0
 	return math.degrees(a)
 
 def dist_to_offset(dist):

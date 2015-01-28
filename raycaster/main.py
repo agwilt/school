@@ -85,18 +85,8 @@ def cast(world, p_x, p_y, a):
 	# {x,y}_i are increments, h_{x,y} is the horiz point, v_{x,y} vertical
 	# OK, horizontal checks first. use TILE as x_i
 	#write later
-	if a == 0:
-		print("0")
-		return hl * TILE - p_x
-	if a == math.pi:
-		print("180")
-		return p_x
-	if a == 0.5*math.pi:
-		print("90")
-		return p_y
-	if a == 1.5*math.pi:
-		print("270")
-		return vl * TILE - p_y
+	if world[p_x // 64][p_y // 64] == 1:
+		return -1
 	return math.degrees(a)
 
 def dist_to_offset(dist):

@@ -1,4 +1,6 @@
-import time, math, sys
+import time
+import math
+import sys
 import pygame
 from pygame.locals import *
 
@@ -73,25 +75,45 @@ def update(oldworld):
 				newworld[col][row] = 1
 	return newworld
 
+
 def quit():
 	"""exit cleanly. I might add stuff like a highscore."""
 	pygame.quit()
 	exit()
 
+
 def cast(world, p_x, p_y, a):
 	"""casts a ray, return distance, -1 if no collision"""
-	# TODO: add special cases for (p_a == 0 or p_a == 180)
+	# x_i, y_i are intervals, h and v are points
 	# max. it: use hl, vl
 	# {x,y}_i are increments, h_{x,y} is the horiz point, v_{x,y} vertical
 	# OK, horizontal checks first. use TILE as x_i
 	#write later
+
 	if world[p_x // 64][p_y // 64] == 1:
 		return -1
-	if a == 0 or a == math.pi: # horizontal
-		# cast with constant x_i, y_i = 0
+
+	if not (a == 0.5*math.pi or a == 1.5*math.pi): # cast horizontal rays
+		h = []
+		# get x_i (+TILE if pointing right, -TILE if left)
+		if (a < 0.5 * math.pi or a > 1.5 * math.pi): # pointing right
+			x_i = TILE
+			h[0] = (p_x // 64)*64 + 64
+		else:
+			x_i = -1 * TILE
+			h[0] = (p_x // 64)*64 - 1
+		if (a == 0 or a == math.pi): # completely horizontal ray
+			y_i = 0
+			h[1] = p_y
+		else:
+			y_i = math.tan(a) * (-1) * x_i
+
+		# now get first point h
+
 	if a == 0.5*math.pi or a == 1.5*math.pi: # vertical
 		# cast with constant y_i, x_i = 0
 	return math.degrees(a)
+
 
 def dist_to_offset(dist):
 	"""takes a distance (to an object), and returns the offset from the middle to start drawing the column."""
@@ -102,6 +124,7 @@ def dist_to_offset(dist):
 	else:
 		return (TILE / dist) * plane_d * 0.5
 
+
 def walk(world, p_x, p_y, a):
 	"""return new cords (p_x, p_y). You cannot walk into live cells or the walls"""
 	if world[p_x // TILE][p_y // TILE] == 1:
@@ -110,6 +133,7 @@ def walk(world, p_x, p_y, a):
 		p_y = int(p_y - (math.sin(a) * step)) % (vl*TILE)
 		p_x = int(p_x + (math.cos(a) * step)) % (hl*TILE)
 	return (p_x, p_y)
+
 
 def draw(world):
 	"""render the scene, by casting rays for each column"""
@@ -136,6 +160,7 @@ def draw(world):
 					print('#',end='')
 			print('')
 		print('\n')
+
 
 #initialize pygame stuff
 pygame.init()

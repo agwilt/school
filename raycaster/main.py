@@ -4,22 +4,30 @@ import sys
 import pygame
 from pygame.locals import *
 
-# angles are in radians
-# (0,0) is in the bottom left
-# 0 is pointing to the right
-# pi/2 is pointing down
-# pi is pointing left
-# 1.5 pi is pointing up
+# Angles are measured in radians, because that's what the math module uses.
+# Thus, right is 0, down is 0.5*math.pi, left is math.pi, and up is 1.5*math.pi.
+# Also, an angle should always be positive, and under 2*math.pi.
+
+#   y
+#   |
+# 3 |
+#   |   x-------
+# 2 |     .a)
+#   |       .
+# 1 |         .
+#   |
+# 0 +---------------x
+#   0  1  2  3  4
 
 debug = False
 
 if "-d" in sys.argv:
 	debug = True
 
-# Constants (not really configurable)
+# Constants (not really meant configurable)
 TILE = 32
 
-# variables (maybe read from config file?)
+# Variables (maybe read from config file?)
 plane_x = 1280 # resolution of plane/screen
 plane_y = 720
 fov = math.radians(60)
@@ -60,7 +68,7 @@ world[19][24] = 1
 world[21][24] = 1
 
 def update(oldworld):
-	"""Runs one *life* iteration, returns the new world"""
+	"""Run one *life* iteration, return the new world"""
 	newworld = [[0 for i in range(vl)] for j in range(hl)]
 	for col in range(hl):
 		for row in range(vl):
@@ -77,38 +85,43 @@ def update(oldworld):
 
 
 def quit():
-	"""exit cleanly. I might add stuff like a highscore."""
+	"""Exit cleanly."""
 	pygame.quit()
 	exit()
 
 
 def cast(world, p_x, p_y, a):
-	"""casts a ray, return distance, -1 if no collision"""
-	# x_i, y_i are intervals, h and v are points
+	"""Cast a ray with angle a, and return a distance. -1 if no collision. Can also return 0."""
 	# max. it: use hl, vl
-	# {x,y}_i are increments, h_{x,y} is the horiz point, v_{x,y} vertical
-	# OK, horizontal checks first. use TILE as x_i
-	#write later
+	# {x,y}_i are itervals, h_{x,y} is the horiz point, v_{x,y} vertical
 
-	if world[p_x // 64][p_y // 64] == 1:
-		return -1
+	# If we are standing *in* a block, we return 0, which dist_to_offset() can handle.
+	if world[p_x // TILE][p_y // TILE] == 1:
+		return 0
 
-	if not (a == 0.5*math.pi or a == 1.5*math.pi): # cast horizontal rays
-		h = []
-		# get x_i (+TILE if pointing right, -TILE if left)
+	# First we are casting for vertical intersections.
+	# If the angle is pointing up or down, don't bother checking.
+	# If the angle is left or right, we check with y_i = 0 and x_i = (-)TILE.
+	if not (a == 0.5*math.pi or a == 1.5*math.pi):
+
+		# Get x_i (+TILE if pointing right, -TILE if left).
+		# Get v_x (x coord of the first point).
 		if (a < 0.5 * math.pi or a > 1.5 * math.pi): # pointing right
 			x_i = TILE
-			h[0] = (p_x // 64)*64 + 64
+			v_x = (p_x // TILE)*TILE + TILE
 		else:
 			x_i = -1 * TILE
-			h[0] = (p_x // 64)*64 - 1
+			v_x = (p_x // TILE)*TILE - 1
+
+		# Get y_i, using tan.
+		# Get v_y, using magic.
 		if (a == 0 or a == math.pi): # completely horizontal ray
 			y_i = 0
-			h[1] = p_y
+			v_y = p_y # The ray won't 'move' on the y-axis, thus h_y is always p_y, and inrements by 0.
 		else:
 			y_i = math.tan(a) * (-1) * x_i
+			v_y = p_y + math.tan(a)*(p_x-v_x)
 
-		# now get first point h
 
 	if a == 0.5*math.pi or a == 1.5*math.pi: # vertical
 		# cast with constant y_i, x_i = 0
@@ -116,7 +129,7 @@ def cast(world, p_x, p_y, a):
 
 
 def dist_to_offset(dist):
-	"""takes a distance (to an object), and returns the offset from the middle to start drawing the column."""
+	"""Take a distance (to an object), and return the offset from the middle to start drawing the column."""
 	if dist == 0:
 		return plane_y * 0.5
 	elif dist == -1:
@@ -126,7 +139,7 @@ def dist_to_offset(dist):
 
 
 def walk(world, p_x, p_y, a):
-	"""return new cords (p_x, p_y). You cannot walk into live cells or the walls"""
+	"""Return new cords (p_x, p_y). You cannot walk into live cells or the walls"""
 	if world[p_x // TILE][p_y // TILE] == 1:
 		return (p_x,p_y)
 	if cast(world, p_x, p_y, p_a) >= step:

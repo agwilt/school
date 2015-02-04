@@ -98,12 +98,23 @@ def quit():
 
 def cast(world, p_x, p_y, a):
 	"""Cast a ray with angle a, and return a distance. -1 if no collision. Can also return 0."""
+
+	if type(p_x) != int:
+		exit(123)
+
 	# max. it: use hl, vl
 	# {x,y}_i are intervals, h_{x,y} is the horiz point, v_{x,y} vertical
 
 	# If we are standing *in* a block, we return 0, which dist_to_offset() can handle.
 	if world[p_x // TILE][p_y // TILE] == 1:
 		return 0
+
+	# By default, h and v checks are invalid. If we find a wall, then they become valid.
+	vvalid = False
+	hvalid = False
+	
+	vdist = 0
+	hdist = 0
 
 	# First we are casting for vertical intersections.
 	# If the angle is pointing up or down, don't bother checking.
@@ -123,15 +134,36 @@ def cast(world, p_x, p_y, a):
 		# Get v_y, using magic.
 		if (a == 0 or a == math.pi): # completely horizontal ray
 			y_i = 0
-			v_y = p_y # The ray won't 'move' on the y-axis, thus h_y is always p_y, and inrements by 0.
+			v_y = p_y # The ray won't 'move' on the y-axis, thus h_y is always p_y, and increments by 0.
 		else:
-			y_i = math.tan(a) * (-1) * x_i
-			v_y = p_y + math.tan(a)*(p_x-v_x)
+			y_i = int(math.tan(a) * (-1) * x_i)
+			v_y = int(p_y + math.tan(a)*(p_x-v_x)) # TODO: fix this
 
 
-	if a == 0.5*math.pi or a == 1.5*math.pi: # vertical
-		# cast with constant y_i, x_i = 0
-	return math.degrees(a)
+		for i in range(hl): # maximum number of iterations is the number of cells along the horizontal
+			try:
+				if world[v_x // 64][v_y // 64] == 1:
+					vvalid = True
+					break
+			except IndexError:
+				print(v_x,v_y)
+				exit(123)
+			v_x += x_i
+			v_y += y_i
+			if v_x > (hl*TILE) or v_y > (vl*TILE):
+				break
+
+		vdist = 100 # TODO: add calculation here
+
+	# Return the shortest distance.
+	if vvalid and hvalid: # both rays collide
+		return min(vdist, hdist)
+	elif vvalid: # only vertical collision
+		return vdist
+	elif hvalid:
+		return hdist
+	else: # no collision
+		return -1
 
 
 def dist_to_offset(dist):

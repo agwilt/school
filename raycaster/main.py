@@ -123,7 +123,7 @@ def cast(world, p_x, p_y, a):
 
 		# Get x_i (+TILE if pointing right, -TILE if left).
 		# Get v_x (x coord of the first point).
-		if (a < 0.5 * math.pi or a > 1.5 * math.pi): # pointing right
+		if (a < 0.5 * math.pi) or (a > 1.5 * math.pi): # pointing right
 			x_i = TILE
 			v_x = (p_x // TILE)*TILE + TILE
 		else:
@@ -132,7 +132,7 @@ def cast(world, p_x, p_y, a):
 
 		# Get y_i, using tan.
 		# Get v_y, using magic.
-		if (a == 0 or a == math.pi): # completely horizontal ray
+		if a == 0 or a == math.pi: # completely horizontal ray
 			y_i = 0
 			v_y = p_y # The ray won't 'move' on the y-axis, thus h_y is always p_y, and increments by 0.
 		else:
@@ -150,11 +150,44 @@ def cast(world, p_x, p_y, a):
 				exit(123)
 			v_x += x_i
 			v_y += y_i
-			if v_x > (hl*TILE) or v_y > (vl*TILE):
+			if v_x >= (hl*TILE) or v_y >= (vl*TILE):
 				break
 
-		# Calculate distance. All credit goes to pythagoras.
+		# Calculate distance. All credit goes to Pythagoras.
 		vdist = math.sqrt((v_x-p_x)**2 + (v_y-p_y)**2)
+	
+	# OK, now we'll check horizontal intersections.
+	# Again, we won't check if the ray is 0° or 180°.
+	if not (a == 0 or a == math.pi):
+
+		# Get y_i and h_y
+		if a < math.pi: # pointing down
+			y_i = -1 * TILE
+			h_y = (p_y // TILE)*TILE - 1
+		else:
+			y_i = TILE
+			h_y = (p_y // TILE)*TILE + TILE
+
+		# Get x_i and h_x
+		if a == 0.5*math.pi or a == 1.5*math.pi: # vertical ray
+			x_i = 0
+			h_x = p_x
+		else:
+			x_i = int(-1 * y_i / math.tan(a))
+			h_x = p_x # more magic. can't think now. do later
+
+		for i in range(vl):
+			try:
+				if world[h_x // 64][h_y // 64] == 1:
+					hvalid = True
+					break
+			except IndexError:
+				print(h_x,h_y)
+				exit(123)
+			h_x += x_i
+			h_y += y_i
+			if h_x >= (hl*TILE) or h_y >= (vl*TILE):
+				break
 
 	# Return the shortest distance.
 	if vvalid and hvalid: # both rays collide

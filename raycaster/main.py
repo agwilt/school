@@ -153,7 +153,8 @@ def cast(world, p_x, p_y, a):
 			if v_x > (hl*TILE) or v_y > (vl*TILE):
 				break
 
-		vdist = 100 # TODO: add calculation here
+		# Calculate distance. All credit goes to pythagoras.
+		vdist = math.sqrt((v_x-p_x)**2 + (v_y-p_y)**2)
 
 	# Return the shortest distance.
 	if vvalid and hvalid: # both rays collide

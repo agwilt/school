@@ -24,7 +24,7 @@ debug = False
 if "-d" in sys.argv:
 	debug = True
 
-# Constants (not really meant configurable)
+# Constants (not really meant to be configurable)
 TILE = 32
 
 # Variables (maybe read from config file?)
@@ -69,18 +69,24 @@ world[21][24] = 1
 
 def update(oldworld):
 	"""Run one *life* iteration, return the new world"""
+	# Initialize a completely new array, to clear up confusion.
 	newworld = [[0 for i in range(vl)] for j in range(hl)]
+
+	# This loops through *every* cell in the world.
 	for col in range(hl):
 		for row in range(vl):
+			# Check row above, middle row, and row beneath.
 			ncount = oldworld[(col-1)%hl][(row-1)%vl] + oldworld[col][(row-1)%vl] + oldworld[(col+1)%hl][(row-1)%vl]
 			ncount += oldworld[(col-1)%hl][row] + oldworld[(col+1)%hl][row]
 			ncount += oldworld[(col-1)%hl][(row+1)%vl] + oldworld[col][(row+1)%vl] + oldworld[(col+1)%hl][(row+1)%vl]
+			# Do things depending on the number of neighbouring cells.
 			if (ncount < 2) or (ncount > 3):
 				newworld[col][row] = 0
 			elif ncount == 2 and oldworld[col][row] == 1:
 				newworld[col][row] = 1
 			elif ncount == 3:
 				newworld[col][row] = 1
+
 	return newworld
 
 
@@ -93,7 +99,7 @@ def quit():
 def cast(world, p_x, p_y, a):
 	"""Cast a ray with angle a, and return a distance. -1 if no collision. Can also return 0."""
 	# max. it: use hl, vl
-	# {x,y}_i are itervals, h_{x,y} is the horiz point, v_{x,y} vertical
+	# {x,y}_i are intervals, h_{x,y} is the horiz point, v_{x,y} vertical
 
 	# If we are standing *in* a block, we return 0, which dist_to_offset() can handle.
 	if world[p_x // TILE][p_y // TILE] == 1:
@@ -132,6 +138,7 @@ def dist_to_offset(dist):
 	"""Take a distance (to an object), and return the offset from the middle to start drawing the column."""
 	if dist == 0:
 		return plane_y * 0.5
+	# Distance of -1 means no collision. So it shouldn't render anything.
 	elif dist == -1:
 		return 0
 	else:
@@ -140,9 +147,10 @@ def dist_to_offset(dist):
 
 def walk(world, p_x, p_y, a):
 	"""Return new cords (p_x, p_y). You cannot walk into live cells or the walls"""
+	# If we're in a block, don't walk.
 	if world[p_x // TILE][p_y // TILE] == 1:
 		return (p_x,p_y)
-	if cast(world, p_x, p_y, p_a) >= step:
+	if cast(world, p_x, p_y, p_a) >= step: # TODO: Make this better.
 		p_y = int(p_y - (math.sin(a) * step)) % (vl*TILE)
 		p_x = int(p_x + (math.cos(a) * step)) % (hl*TILE)
 	return (p_x, p_y)
@@ -150,18 +158,25 @@ def walk(world, p_x, p_y, a):
 
 def draw(world):
 	"""render the scene, by casting rays for each column"""
+	# First we draw the background.
 	screen.fill((255,255,255))
 	pygame.draw.rect(screen, (200,200,200), ((0,(plane_y/2)),(plane_x,plane_y)))
+
+	# Now we get the angle of the first ray.
 	angle = (p_a - (fov/2)) % (2*math.pi)
+
+	# For all columns, cast a ray, and draw a vertical line on the screen.
 	for col in range(plane_x):
 		dist = cast(world, p_x, p_y, angle)
 		if dist > 0:
 			pygame.draw.line(screen, (0,0,0), (col,((plane_y/2) - dist_to_offset(dist))), (col, (plane_y/2) + dist_to_offset(dist)))
 		angle = (angle + ray_angle) % (2*math.pi)
 	pygame.display.flip()
-	# print map to stdout
+
+	# If the debug flag is set, we print debug information.
 	if debug:
 		print("(%d,%d) %d" % (p_x,p_y,math.degrees(p_a)))
+	# If the map flag is set, print a map to stdout.
 	if "-m" in sys.argv:
 		for row in range(vl-1,-1,-1):
 			for col in range(hl):
@@ -175,7 +190,7 @@ def draw(world):
 		print('\n')
 
 
-#initialize pygame stuff
+# Initialize clock and pygame stuff.
 pygame.init()
 screen = pygame.display.set_mode((plane_x,plane_y))
 clock = pygame.time.Clock()
@@ -183,12 +198,17 @@ tick = 30
 paused = False
 
 while True:
-	keys = pygame.key.get_pressed() # get all pressed keys
+	# First get a list of pressed keys.
+	keys = pygame.key.get_pressed()
+
 	for event in pygame.event.get():
 		if event.type == QUIT:
 			quit()
+
 	if keys[K_p]:
 		paused = not paused
+
+	# These are the game controls.
 	if not paused:
 		if keys[K_ESCAPE]:
 			quit()
@@ -204,10 +224,14 @@ while True:
 			p_a = (p_a - turn) % (2*math.pi)
 		if keys[K_RIGHT]: # turn right
 			p_a = (p_a + turn) % (2*math.pi)
+
+	# Check if you died. We don't want this in debug mode.
 	if not debug:
 		if world[p_x // TILE][p_y // TILE] == 1:
 			print("You got mown over. By a *cell*.")
 			quit()
+	
+	# Draw and update stuff.
 	draw(world)
 	clock.tick(tick)
 	if not paused:

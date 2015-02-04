@@ -4,7 +4,7 @@
 \usepackage{lmodern}
 \usepackage[german]{babel}
 
-\title{Funktionsweise eines Raycasters mithilfe eines selber geschreibenen Beispiels erkl\"art}
+\title{Funktionsweise eines Raycasters mithilfe eines selber geschriebenen Beispiels erkl\"art}
 \author{Andreas Gwilt}
 
 \begin{document}
@@ -17,7 +17,14 @@ This looks rather concrete to me. Actually, no it doesn't.
 %TODO: Go to bed!
 \end{abstract}
 
-\section{Was ist ein Raycaster}
+\section{Was ist ein Raycaster?}
+% say roughly what it is, and what i'm trying to do
+Raycasting ist ein ziemlich weiter begriff, der meistens für eine Rendermethode benutzt wird. Allgemein ist es eine Technik, um zu sehen, ob ein Strahl eine Fläche schneidet. Man "wirft" einen Strahl, und überprüft, ob er eine Ebene schneidet oder nicht. Diese ist dem Raytracing sehr ähnlich, aber ist viel limitierter und auch schneller.
+
+\subsection{Welche Probleme löst ein Raycaster?}
+Raycasting ist eine Methode, um zu überprüfen, ob ein Strahl eine Fläche schneidet oder nicht. Die häufigste Anwendung dafür ist als einfaches Renderverfahren, um ein Spielfeld in pseudo-3D darzustellen. Es gibt aber auch mehrere andere Anwendungen, z.B. Kollisionserkennung oder um fest zu stellen, ob etwas sichtbar ist oder nicht. In meinem Beispiel nutze ich die Methode (in der cast() Funktion) hauptsächlich dazu, das Spielfeld darzustellen, aber auch als Kollisionserkennung für die walk() Funktion. Ich werde mich jedoch auf den Raycaster als Rendermethode konzentrieren.\\
+In den späten 1980ern und frühen 90ern, als Raycasting beliebt wurde, hatte man noch ziemlich wenig Rechenleistung, wollte aber "3D" Spiele schreiben. Ein wirklich dreidimensionales Spiel-Engine (wie das 1996 erschienene Quake Engine) war noch nicht schnell genug, um in einem Spiel benutzt zu werden, also verwendete man Methoden wie Raycasting, um die Illusion von 3D herzustellen. Das vielleicht berühmteste Spiel, was Raycasting benutzte, war wahrscheinlich Wolfenstein 3D (Auch der erste beliebte Ego-Shooter). Wolfenstein 3D, auch Wolf3D genannt, hatte ein zweidimensionales Spielfeld, was in 3D dargestellt wurde. \\
+Raycasting musste jedoch sehr viele Kompromisse eingehen, um so schnell zu sein. Das Spielfeld war ein zweidimensionales Array, also konnte es nur Rechte Winkel geben, und Decke und Boden mussten immer gleich hoch bleiben. 
 blablablablablablaWOLF3Dblablafastblablablaonlyfake3dblablablaneededatthetimeblablablanon-recursiveraytracerblabla
 
 \end{document}

@@ -4,6 +4,9 @@
 
 ### How?
  - General
+   - problem to solve / task
+     - general principle of casting a ray,
+     - rays in grid, to make it more efficient
    - data
-   - problem/task
+   - how it does it's stuff
  - explain how w. code (top -> down)

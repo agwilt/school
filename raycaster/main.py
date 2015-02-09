@@ -1,23 +1,38 @@
-import time, math
+import time
+import math
+import sys
 import pygame
 from pygame.locals import *
 
-# angles are in radians
-# (0,0) is in the top left
-# 0 is pointing to the right
-# pi/2 is pointing up
-# pi is pointing left
-# 1.5 pi is pointing down
+# Angles are measured in radians, because that's what the math module uses.
+# Thus, right is 0, down is 0.5*math.pi, left is math.pi, and up is 1.5*math.pi.
+# Also, an angle should always be positive, and under 2*math.pi.
 
-# Constants (not really configurable)
-TILE = 64
+#   y
+#   |
+# 3 |
+#   |   x-------
+# 2 |     .a)
+#   |       .
+# 1 |         .
+#   |
+# 0 +---------------x
+#   0  1  2  3  4
 
-# variables (maybe read from config file?)
+debug = False
+
+if "-d" in sys.argv:
+	debug = True
+
+# Constants (not really meant to be configurable)
+TILE = 32
+
+# Variables (maybe read from config file?)
 plane_x = 1280 # resolution of plane/screen
 plane_y = 720
 fov = math.radians(60)
-step = 10
-turn = math.radians(10)
+step = 20
+turn = math.radians(5)
 
 # World Variables
 hl = 100 #horiz, vert height of field
@@ -26,7 +41,7 @@ world = [[0 for i in range(vl)] for j in range(hl)]
 p_x = 32 #player x,y
 p_y = 32
 p_a = 0 #pointing right
-p_height = 32
+p_height = TILE / 2
 
 # computed variables
 plane_d = (plane_x / 2) / math.tan(fov/2) #distance from player to plane
@@ -53,69 +68,195 @@ world[19][24] = 1
 world[21][24] = 1
 
 def update(oldworld):
-	"""Runs one *life* iteration, returns the new world"""
+	"""Run one *life* iteration, return the new world"""
+	# Initialize a completely new array, to clear up confusion.
 	newworld = [[0 for i in range(vl)] for j in range(hl)]
+
+	# This loops through *every* cell in the world.
 	for col in range(hl):
 		for row in range(vl):
+			# Check row above, middle row, and row beneath.
 			ncount = oldworld[(col-1)%hl][(row-1)%vl] + oldworld[col][(row-1)%vl] + oldworld[(col+1)%hl][(row-1)%vl]
 			ncount += oldworld[(col-1)%hl][row] + oldworld[(col+1)%hl][row]
 			ncount += oldworld[(col-1)%hl][(row+1)%vl] + oldworld[col][(row+1)%vl] + oldworld[(col+1)%hl][(row+1)%vl]
+			# Do things depending on the number of neighbouring cells.
 			if (ncount < 2) or (ncount > 3):
 				newworld[col][row] = 0
 			elif ncount == 2 and oldworld[col][row] == 1:
 				newworld[col][row] = 1
 			elif ncount == 3:
 				newworld[col][row] = 1
+
 	return newworld
 
+
 def quit():
-	"""exit cleanly. I might add stuff like a highscore."""
+	"""Exit cleanly."""
 	pygame.quit()
 	exit()
 
-def cast(world, p_x, p_y, p_a, max_it=1000):
-	"""casts a ray, return distance, -1 if no collision"""
-	# return distance
-	return 50 + math.degrees(p_a)
+
+def cast(world, p_x, p_y, a):
+	"""Cast a ray with angle a, and return a distance. -1 if no collision. Can also return 0."""
+
+	if type(p_x) != int:
+		exit(123)
+
+	# max. it: use hl, vl
+	# {x,y}_i are intervals, h_{x,y} is the horiz point, v_{x,y} vertical
+
+	# If we are standing *in* a block, we return 0, which dist_to_offset() can handle.
+	if world[p_x // TILE][p_y // TILE] == 1:
+		return 0
+
+	# By default, h and v checks are invalid. If we find a wall, then they become valid.
+	vvalid = False
+	hvalid = False
+	
+	vdist = 0
+	hdist = 0
+
+	# First we are casting for vertical intersections.
+	# If the angle is pointing up or down, don't bother checking.
+	# If the angle is left or right, we check with y_i = 0 and x_i = (-)TILE.
+	if not (a == 0.5*math.pi or a == 1.5*math.pi):
+
+		# Get x_i (+TILE if pointing right, -TILE if left).
+		# Get v_x (x coord of the first point).
+		if (a < 0.5 * math.pi) or (a > 1.5 * math.pi): # pointing right
+			x_i = TILE
+			v_x = (p_x // TILE)*TILE + TILE
+		else:
+			x_i = -1 * TILE
+			v_x = (p_x // TILE)*TILE - 1
+
+		# Get y_i, using tan.
+		# Get v_y, using magic.
+		if a == 0 or a == math.pi: # completely horizontal ray
+			y_i = 0
+			v_y = p_y # The ray won't 'move' on the y-axis, thus h_y is always p_y, and increments by 0.
+		else:
+			y_i = int(math.tan(a) * (-1) * x_i)
+			v_y = int(p_y + math.tan(a)*(p_x-v_x)) # TODO: fix this
+
+
+		for i in range(hl): # maximum number of iterations is the number of cells along the horizontal
+			try:
+				if world[v_x // 64][v_y // 64] == 1:
+					vvalid = True
+					break
+			except IndexError:
+				print(v_x,v_y)
+				exit(123)
+			v_x += x_i
+			v_y += y_i
+			if v_x >= (hl*TILE) or v_y >= (vl*TILE):
+				break
+
+		# Calculate distance. All credit goes to Pythagoras.
+		vdist = math.sqrt((v_x-p_x)**2 + (v_y-p_y)**2)
+	
+	# OK, now we'll check horizontal intersections.
+	# Again, we won't check if the ray is 0° or 180°.
+	if not (a == 0 or a == math.pi):
+
+		# Get y_i and h_y
+		if a < math.pi: # pointing down
+			y_i = -1 * TILE
+			h_y = (p_y // TILE)*TILE - 1
+		else:
+			y_i = TILE
+			h_y = (p_y // TILE)*TILE + TILE
+
+		# Get x_i and h_x
+		if a == 0.5*math.pi or a == 1.5*math.pi: # vertical ray
+			x_i = 0
+			h_x = p_x
+		else:
+			x_i = int(-1 * y_i / math.tan(a))
+			h_x = p_x # more magic. can't think now. do later
+
+		for i in range(vl):
+			try:
+				if world[h_x // 64][h_y // 64] == 1:
+					hvalid = True
+					break
+			except IndexError:
+				print(h_x,h_y)
+				exit(123)
+			h_x += x_i
+			h_y += y_i
+			if h_x >= (hl*TILE) or h_y >= (vl*TILE):
+				break
+
+	# Return the shortest distance.
+	if vvalid and hvalid: # both rays collide
+		return min(vdist, hdist)
+	elif vvalid: # only vertical collision
+		return vdist
+	elif hvalid:
+		return hdist
+	else: # no collision
+		return -1
+
 
 def dist_to_offset(dist):
-	"""takes a distance (to an object), and returns the offset from the middle to start drawing the column."""
+	"""Take a distance (to an object), and return the offset from the middle to start drawing the column."""
 	if dist == 0:
 		return plane_y * 0.5
+	# Distance of -1 means no collision. So it shouldn't render anything.
 	elif dist == -1:
 		return 0
 	else:
 		return (TILE / dist) * plane_d * 0.5
 
-def walk(world, p_x, p_y, p_a):
-	"""return new cords (p_x, p_y). You cannot walk into live cells or the walls"""
+
+def walk(world, p_x, p_y, a):
+	"""Return new cords (p_x, p_y). You cannot walk into live cells or the walls"""
+	# If we're in a block, don't walk.
 	if world[p_x // TILE][p_y // TILE] == 1:
 		return (p_x,p_y)
-	p_y = int(p_y + math.sin(p_a) * step) % (vl*TILE) 
-	p_x = int(p_x + math.cos(p_a) * step) % (hl*TILE)
+	if cast(world, p_x, p_y, p_a) >= step: # TODO: Make this better.
+		p_y = int(p_y - (math.sin(a) * step)) % (vl*TILE)
+		p_x = int(p_x + (math.cos(a) * step)) % (hl*TILE)
 	return (p_x, p_y)
+
 
 def draw(world):
 	"""render the scene, by casting rays for each column"""
-	screen.fill((0,0,0))
-	angle = math.degrees(p_a - math.radians(fov/2))
-	for col in range(plane_x):
-		dist = cast(world, p_x, p_y, math.radians(angle))
-		if dist > 0:
-			pygame.draw.line(screen, (255,255,255), (col,((plane_y/2) - dist_to_offset(dist))), (col, (plane_y/2) + dist_to_offset(dist)))
-		angle = (angle + math.degrees(ray_angle)) % 360
-	pygame.display.flip()
-	# print map to stdout
-	for row in range(vl):
-		for col in range(hl):
-			if world[col][row] == 0:
-				print('.',end='')
-			else:
-				print('#',end='')
-		print('')
-	print('\n')
+	# First we draw the background.
+	screen.fill((255,255,255))
+	pygame.draw.rect(screen, (200,200,200), ((0,(plane_y/2)),(plane_x,plane_y)))
 
-#initialize pygame stuff
+	# Now we get the angle of the first ray.
+	angle = (p_a - (fov/2)) % (2*math.pi)
+
+	# For all columns, cast a ray, and draw a vertical line on the screen.
+	for col in range(plane_x):
+		dist = cast(world, p_x, p_y, angle)
+		if dist > 0:
+			pygame.draw.line(screen, (0,0,0), (col,((plane_y/2) - dist_to_offset(dist))), (col, (plane_y/2) + dist_to_offset(dist)))
+		angle = (angle + ray_angle) % (2*math.pi)
+	pygame.display.flip()
+
+	# If the debug flag is set, we print debug information.
+	if debug:
+		print("(%d,%d) %d" % (p_x,p_y,math.degrees(p_a)))
+	# If the map flag is set, print a map to stdout.
+	if "-m" in sys.argv:
+		for row in range(vl-1,-1,-1):
+			for col in range(hl):
+				if (row,col) == (p_x // TILE,p_y // TILE):
+					print('x',end='')
+				elif world[col][row] == 0:
+					print('.',end='')
+				else:
+					print('#',end='')
+			print('')
+		print('\n')
+
+
+# Initialize clock and pygame stuff.
 pygame.init()
 screen = pygame.display.set_mode((plane_x,plane_y))
 clock = pygame.time.Clock()
@@ -123,12 +264,17 @@ tick = 30
 paused = False
 
 while True:
-	keys = pygame.key.get_pressed() # get all pressed keys
+	# First get a list of pressed keys.
+	keys = pygame.key.get_pressed()
+
 	for event in pygame.event.get():
 		if event.type == QUIT:
 			quit()
+
 	if keys[K_p]:
 		paused = not paused
+
+	# These are the game controls.
 	if not paused:
 		if keys[K_ESCAPE]:
 			quit()
@@ -144,9 +290,14 @@ while True:
 			p_a = (p_a - turn) % (2*math.pi)
 		if keys[K_RIGHT]: # turn right
 			p_a = (p_a + turn) % (2*math.pi)
-	if world[p_x // TILE][p_y // TILE] == 1:
-		print("You got mown over. By a *cell*.")
-		quit()
+
+	# Check if you died. We don't want this in debug mode.
+	if not debug:
+		if world[p_x // TILE][p_y // TILE] == 1:
+			print("You got mown over. By a *cell*.")
+			quit()
+	
+	# Draw and update stuff.
 	draw(world)
 	clock.tick(tick)
 	if not paused:

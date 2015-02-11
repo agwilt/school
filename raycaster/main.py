@@ -137,7 +137,7 @@ def cast(world, p_x, p_y, a):
 			v_y = p_y # The ray won't 'move' on the y-axis, thus h_y is always p_y, and increments by 0.
 		else:
 			y_i = int(math.tan(a) * (-1) * x_i)
-			v_y = int(p_y + math.tan(a)*(p_x-v_x)) # TODO: fix this
+			v_y = int(p_y - math.tan(a)*(v_x-p_x))
 
 
 		for i in range(hl): # maximum number of iterations is the number of cells along the horizontal
@@ -262,8 +262,10 @@ screen = pygame.display.set_mode((plane_x,plane_y))
 clock = pygame.time.Clock()
 tick = 30
 paused = False
+update_if_div_by_ten = 0
 
 while True:
+	update_if_div_by_ten += 1
 	# First get a list of pressed keys.
 	keys = pygame.key.get_pressed()
 
@@ -300,5 +302,5 @@ while True:
 	# Draw and update stuff.
 	draw(world)
 	clock.tick(tick)
-	if not paused:
+	if (not paused) and (update_if_div_by_ten % 10 == 0):
 		world = update(world)

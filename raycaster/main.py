@@ -26,6 +26,7 @@ if "-d" in sys.argv:
 
 # Constants (not really meant to be configurable)
 TILE = 32
+pi = math.pi
 
 # Variables (maybe read from config file?)
 plane_x = 1280 # resolution of plane/screen
@@ -114,11 +115,11 @@ def cast(world, p_x, p_y, a):
 	# First we are casting for vertical intersections.
 	# If the angle is pointing up or down, don't bother checking.
 	# If the angle is left or right, we check with y_i = 0 and x_i = (-)TILE.
-	if not (a == 0.5*math.pi or a == 1.5*math.pi):
+	if not (a == 0.5*pi or a == 1.5*pi):
 
 		# Get x_i (+TILE if pointing right, -TILE if left).
 		# Get v_x (x coord of the first point).
-		if (a < 0.5 * math.pi) or (a > 1.5 * math.pi): # pointing right
+		if (a < 0.5 * pi) or (a > 1.5 * pi): # pointing right
 			x_i = TILE
 			v_x = (p_x // TILE)*TILE + TILE
 		else:
@@ -127,7 +128,7 @@ def cast(world, p_x, p_y, a):
 
 		# Get y_i, using tan.
 		# Get v_y, using magic.
-		if a == 0 or a == math.pi: # completely horizontal ray
+		if a == 0 or a == pi: # completely horizontal ray
 			y_i = 0
 			v_y = p_y # The ray won't 'move' on the y-axis, thus h_y is always p_y, and increments by 0.
 		else:
@@ -141,8 +142,9 @@ def cast(world, p_x, p_y, a):
 					vvalid = True
 					break
 			except IndexError:
-				print("v. error!", v_x,v_y)
-				exit(123)
+				if debug:
+					print("v. error!", v_x,v_y, '\n Ray:', p_x, p_y, a)
+				break
 			v_x += x_i
 			v_y += y_i
 			if v_x >= (hl*TILE) or v_y >= (vl*TILE):
@@ -153,10 +155,10 @@ def cast(world, p_x, p_y, a):
 	
 	# OK, now we'll check horizontal intersections.
 	# Again, we won't check if the ray is 0° or 180°.
-	if not (a == 0 or a == math.pi):
+	if 0 and not (a == 0 or a == pi):
 
 		# Get y_i and h_y
-		if a < math.pi: # pointing down
+		if a < pi: # pointing down
 			y_i = -1 * TILE
 			h_y = (p_y // TILE)*TILE - 1
 		else:
@@ -164,7 +166,7 @@ def cast(world, p_x, p_y, a):
 			h_y = (p_y // TILE)*TILE + TILE
 
 		# Get x_i and h_x
-		if a == 0.5*math.pi or a == 1.5*math.pi: # vertical ray
+		if a == 0.5*pi or a == 1.5*pi: # vertical ray
 			x_i = 0
 			h_x = p_x
 		else:
@@ -177,8 +179,9 @@ def cast(world, p_x, p_y, a):
 					hvalid = True
 					break
 			except IndexError:
-				print("h. error!", h_x,h_y)
-				exit(123)
+				if debug:
+					print("h. error!", h_x,h_y)
+				break
 			h_x += x_i
 			h_y += y_i
 			if h_x >= (hl*TILE) or h_y >= (vl*TILE):
@@ -224,14 +227,14 @@ def draw(world):
 	pygame.draw.rect(screen, (200,200,200), ((0,(plane_y/2)),(plane_x,plane_y)))
 
 	# Now we get the angle of the first ray.
-	angle = (p_a - (fov/2)) % (2*math.pi)
+	angle = (p_a - (fov/2)) % (2*pi)
 
 	# For all columns, cast a ray, and draw a vertical line on the screen.
 	for col in range(plane_x):
 		dist = cast(world, p_x, p_y, angle)
 		if dist > 0:
 			pygame.draw.line(screen, (0,0,0), (col,((plane_y/2) - dist_to_offset(dist))), (col, (plane_y/2) + dist_to_offset(dist)))
-		angle = (angle + ray_angle) % (2*math.pi)
+		angle = (angle + ray_angle) % (2*pi)
 	pygame.display.flip()
 
 	# If the debug flag is set, we print debug information.
@@ -278,15 +281,15 @@ while True:
 		if keys[K_UP] or keys[K_w]: # go forwards
 			p_x, p_y = walk(world, p_x, p_y, p_a)
 		if keys[K_DOWN] or keys[K_s]: # go back
-			p_x, p_y = walk(world, p_x, p_y, (p_a + math.pi))
+			p_x, p_y = walk(world, p_x, p_y, (p_a + pi))
 		if keys[K_a] or keys[K_COMMA]: # strafe left
-			p_x, p_y = walk(world, p_x, p_y, (p_a - (0.5*math.pi)))
+			p_x, p_y = walk(world, p_x, p_y, (p_a - (0.5*pi)))
 		if keys[K_d] or keys[K_PERIOD]: # strafe right
-			p_x, p_y = walk(world, p_x, p_y, (p_a + (0.5*math.pi)))
+			p_x, p_y = walk(world, p_x, p_y, (p_a + (0.5*pi)))
 		if keys[K_LEFT]: # turn left
-			p_a = (p_a - turn) % (2*math.pi)
+			p_a = (p_a - turn) % (2*pi)
 		if keys[K_RIGHT]: # turn right
-			p_a = (p_a + turn) % (2*math.pi)
+			p_a = (p_a + turn) % (2*pi)
 
 	# Check if you died. We don't want this in debug mode.
 	if not debug:

@@ -20,9 +20,14 @@ from pygame.locals import *
 #   0  1  2  3  4
 
 debug = False
+god = False
 
 if "-d" in sys.argv:
 	debug = True
+	god = True
+
+if "-g" in sys.argv:
+	god = True
 
 # Constants (not really meant to be configurable)
 TILE = 32
@@ -52,16 +57,6 @@ world[9][12] = 1
 world[9][13] = 1
 world[10][12] = 1
 world[10][13] = 1
-
-world[19][20] = 1
-world[21][20] = 1
-world[20][20] = 1
-world[20][21] = 1
-world[20][22] = 1
-world[20][23] = 1
-world[20][24] = 1
-world[19][24] = 1
-world[21][24] = 1
 
 def update(oldworld):
 	"""Run one *life* iteration, return the new world"""
@@ -292,7 +287,7 @@ while True:
 			p_a = (p_a + turn) % (2*pi)
 
 	# Check if you died. We don't want this in debug mode.
-	if not debug:
+	if not god:
 		if world[p_x // TILE][p_y // TILE] == 1:
 			print("You got mown over. By a *cell*.")
 			quit()

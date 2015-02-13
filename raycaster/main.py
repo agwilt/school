@@ -47,13 +47,8 @@ p_height = TILE / 2
 plane_d = (plane_x / 2) / math.tan(fov/2) #distance from player to plane
 ray_angle = fov / plane_x #angle between rays
 
-world[7][11] = 1
-world[7][14] = 1
-world[8][10] = 1
-world[9][10] = 1
-world[9][14] = 1
-world[10][10] = 1
-world[10][11] = 1
+world[9][12] = 1
+world[9][13] = 1
 world[10][12] = 1
 world[10][13] = 1
 

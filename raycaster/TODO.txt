@@ -5,19 +5,4 @@ Advantages/disadvantages?
 History, examples (wolf3d)
 Not only rendering, but also e.g. collision detection
 
-
-program:
-
-get offset of player in cell world[x][y]:
-
-p_x % TILE
-p_y % TILE
---> min 0: left side, max 63: right side
-
-tiles start at 0, 64, etc.
-end at 63, 127, etc.
-
-
-
-horizcheck: y_inc is TILE, x_inc = TILE / tan(a)
-vertcheck: x_inc is TILE, y_inc = TILE * tan(a)
+fix walking: controls and checking

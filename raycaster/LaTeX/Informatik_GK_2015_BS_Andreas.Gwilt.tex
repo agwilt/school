@@ -5,6 +5,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
 \usepackage{graphicx}
+\usepackage{fancyvrb}
 \usepackage[german]{babel}
 
 \title{Funktionsweise eines Raycasters mithilfe eines selber geschriebenen Beispiels erkl\"art}
@@ -50,7 +51,46 @@ Der Winkel des Spielers oder des Strahls ist auch wichtig. Da die Python-Funktio
 Here goes stuff explaining what things the RC needs to do in a program, as opposed to things like adding sprites, etc.
 
 \subsection{Schritt für Schritt Erklärung}
-Here goes a top-down explanation of how my code works (and obviously how the RC works).
+
+\subsubsection{Initialisierung}
+
+Zuerst müssen einige Variablen gesetzt werden. Einige werden in dem ganzen Spiel konstant bleiben:
+\begin{Verbatim}[baselinestretch=1.0]
+TILE = 32 # Länge der Ziegel von world, zum umrechnen in Koordinaten
+pi = math.pi
+
+plane\_x = 1280 # Bildschirm/Fenster Auflösung
+plane\_y = 720
+fov = math.radians(60) # Sichtfeld
+step = 20 # Länge eines Schrittes (für walk())
+turn = math.radians(5) # Wie weit der Spieler sich dreht
+\end{Verbatim}
+
+Jetzt kommen einige Variablen für das Spielfeld und den Spieler, die zum Teil geändert werden können (z.B. Spielerposition):
+\begin{Verbatim}[baselinestretch=1.0]
+hl = 100 # Horizontale/vertikale länge des Spielfeldes
+vl = 50
+world = [[0 for i in range(vl)] for j in range(hl)] # Welt array
+p\_x = 32 # Spieler x,y
+p\_y = 32
+p\_a = 0 # Spieler Winkel (zeigt am Moment nach "rechts"
+p\_height = TILE / 2 # Spieler höhe
+
+plane\_d = (plane\_x / 2) / math.tan(fov/2) # distance from player to plane
+ray\_angle = fov / plane\_x # angle between rays
+\end{Verbatim}
+
+\subsubsection{Die Zentrale Schleife}
+Danach wird \texttt{pygame} (Die Graphik-Library) initialisiert, und die zentrale Schleife angefangen. Spiel-schleifen haben in der Regel drei schritte:
+\begin{enumerate}
+	\item Befehle von dem Benutzer holen
+	\item Mit dieser information den Spielzustand erneuern
+	\item Das Spiel rendern
+\end{enumerate}
+In meinem Beispiel ist Schritt 1. nachschauen, welche Tasten gedr\"uckt werden. Entsprechend ändert sich \texttt{p\_a}, wenn der Spieler sich drehen will, und \texttt{p\_x}/\texttt{p\_y}, wenn der Spieler sich bewegt. Dazu wird die \texttt{walk(world, p_x, p_y, a)} Funktion abgerufen, die mithilfe der \texttt{cast} Funktion prüft, ob der Weg frei ist oder nicht. Danach wird die Spielwelt nach den \textit{Life}-Regeln von der \texttt{update(world)} Funktion aktualisiert. \\
+Hauptsächlich interresieren wir uns aber für die \texttt{draw(world)} Funktion, die das ganze mithilfe des Raycasters rendert.
+
+\subsubsection{cast()}
 
 \section{Zusammenfassung}
 One or two paragraphs of TL;DR.

@@ -103,9 +103,6 @@ def cast(world, p_x, p_y, a):
 	# By default, h and v checks are invalid. If we find a wall, then they become valid.
 	vvalid = False
 	hvalid = False
-	
-	vdist = 0
-	hdist = 0
 
 	# First we are casting for vertical intersections.
 	# If the angle is pointing up or down, don't bother checking.
@@ -227,7 +224,7 @@ def draw(world):
 	# For all columns, cast a ray, and draw a vertical line on the screen.
 	for col in range(plane_x):
 		dist = cast(world, p_x, p_y, angle)
-		if dist > 0:
+		if dist != -1:
 			pygame.draw.line(screen, (0,0,0), (col,((plane_y/2) - dist_to_offset(dist))), (col, (plane_y/2) + dist_to_offset(dist)))
 		angle = (angle + ray_angle) % (2*pi)
 	pygame.display.flip()

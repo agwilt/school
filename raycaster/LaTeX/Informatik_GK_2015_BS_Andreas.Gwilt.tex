@@ -91,13 +91,16 @@ ray_angle = fov / plane_x # angle between rays
 \end{Verbatim}
 
 \subsection{Die Zentrale Schleife}
+\subsubsection{Schleife}
 Danach wird \texttt{pygame} (Die Graphik-Library) initialisiert, und die zentrale Schleife angefangen. Spiel-schleifen haben in der Regel drei schritte:
 \begin{enumerate}
 	\item Befehle von dem Benutzer holen
 	\item Mit dieser information den Spielzustand erneuern
 	\item Das Spiel rendern
 \end{enumerate}
-In meinem Beispiel ist Schritt 1. Nachschauen, welche Tasten gedr\"uckt werden. Entsprechend ändert sich \texttt{p\_a}, wenn der Spieler sich drehen will, und \texttt{p\_x}/\texttt{p\_y}, wenn der Spieler sich bewegt. Dazu wird die \texttt{walk(world, p\_x, p\_y, a)} Funktion abgerufen, die mithilfe der \texttt{cast} Funktion prüft, ob der Weg frei ist oder nicht. Danach wird das Spielfeld nach den \textit{Life}-Regeln von der \texttt{update(world)} Funktion aktualisiert. \\
+In meinem Beispiel ist Schritt 1. Nachschauen, welche Tasten gedr\"uckt werden. Entsprechend ändert sich \texttt{p\_a}, wenn der Spieler sich drehen will, und \texttt{p\_x}/\texttt{p\_y}, wenn der Spieler sich bewegt. Dazu wird die \texttt{walk(world, p\_x, p\_y, a)} Funktion abgerufen, die mithilfe der \texttt{cast} Funktion prüft, ob der Weg frei ist oder nicht. Danach wird das Spielfeld nach den \textit{Life}-Regeln von der \texttt{update(world)} Funktion aktualisiert.
+
+\subsubsection{\texttt{draw()}}
 Hauptsächlich interessieren wir uns aber für die \texttt{draw(world)} Funktion, die das ganze mithilfe des Raycasters rendert. Bevor das eigentliche Rendern anfängt, wird der Hintergrund gemalt. In diesem fall heißt das einfach, das Fenster weiß zu füllen, und für den Boden ein hellgraues Rechteck zu malen:
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 screen.fill((255,255,255))

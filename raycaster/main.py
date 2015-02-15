@@ -122,7 +122,7 @@ def cast(world, p_x, p_y, a):
 		# Get v_y, using magic.
 		if a == 0 or a == pi: # completely horizontal ray
 			y_i = 0
-			v_y = p_y # The ray won't 'move' on the y-axis, thus h_y is always p_y, and increments by 0.
+			v_y = p_y # The ray won't 'move' on the y-axis, thus v_y is always p_y, and increments by 0.
 		else:
 			y_i = int(math.tan(a) * (-1) * x_i)
 			v_y = int(p_y - math.tan(a)*(v_x-p_x))

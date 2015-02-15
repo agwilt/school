@@ -1,9 +1,5 @@
 \documentclass[a4paper,12pt]{report}
 
-\renewcommand{\baselinestretch}{1.5}
-\setcounter{tocdepth}{4}
-\setcounter{secnumdepth}{3}
-
 \usepackage[margin=2.5cm, inner=4cm, outer=2cm]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -12,6 +8,12 @@
 \usepackage{textcomp}
 \usepackage{fancyvrb}
 \usepackage[german]{babel}
+\usepackage{framed}
+\usepackage{setspace}
+
+\onehalfspacing
+\setcounter{tocdepth}{4}
+\setcounter{secnumdepth}{3}
 
 \title{Funktionsweise eines Raycasters mithilfe eines selber geschriebenen Beispiels erkl\"art}
 \author{Andreas Gwilt}
@@ -248,6 +250,72 @@ Schließlich wird -1 zurückgegeben, wenn der Strahl auf nichts trifft:
 else: # no collision
         return -1
 \end{Verbatim}
+
+\subsection{Zusammenfassung}
+
+Um die Struktur des Programms zusammenzufassen:
+\begin{spacing}{1.0}
+\begin{framed}
+\begin{enumerate}
+	\item Diverse (globale) Variablen werden initialisiert
+	\item Die zentrale Schleife des Spiels wird begonnen. Diese schleife macht folgendes:
+	\begin{itemize}
+		\item Benuztereingaben holen, \texttt{walk()} oder \texttt{quit()} aufrufen
+		\item Mit draw() rendern
+		\item Mit update() die Welt aktualisieren
+	\end{itemize}
+\end{enumerate}
+\end{framed}
+\end{spacing}
+
+\texttt{draw()} Funktioniert so:
+\begin{spacing}{1.0}
+\begin{framed}
+\begin{enumerate}
+	\item Hintergrund malen
+	\item Startwinkel bestimmen
+	\item Durch die Spalten des Fensters iterieren:
+	\begin{itemize}
+		\item Strahl mit \texttt{cast()} werfen
+		\item Mit der distanz und \texttt{dist\_to\_offset()} Strich malen
+		\item Winkel inkrementieren
+	\end{itemize}
+	\item Fenster aktualisieren
+\end{enumerate}
+\end{framed}
+\end{spacing}
+
+Und schließlich \texttt{cast()} selber:
+\begin{spacing}{1.0}
+\begin{framed}
+\begin{enumerate}
+	\item Auf Sonderfälle überprüfen
+	\item Variablen initialisieren
+	\item In einem \texttt{if}-Block nach vertikalen Schnittstellen prüfen:
+	\begin{itemize}
+		\item Punkt V und Inkrement finden
+		\item In einer \texttt{for}-Schleife den Strahl immer weiter führen:
+		\begin{itemize}
+			\item Prüfen, ob V in einer lebenden Zelle ist
+			\item V inkrementieren
+		\end{itemize}
+		\item Distanz berechnen
+	\end{itemize}
+	\item In noch einem \texttt{if}-Block nach horizontalen Schnittstellen prüfen:
+	\begin{itemize}
+		\item Punkt H und Inkrement finden
+		\item In einer \texttt{for}-Schleife den Strahl immer weiter führen:
+		\begin{itemize}
+			\item Prüfen, ob H in einer lebenden Zelle ist
+			\item H inkrementieren
+		\end{itemize}
+		\item Distanz berechnen
+	\end{itemize}
+	\item Distanzen vergleichen, Wert zurückgeben
+\end{enumerate}
+\end{framed}
+\end{spacing}
+
 
 \chapter{Zusammenfassung}
 One or two paragraphs of TL;DR.

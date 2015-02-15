@@ -219,7 +219,7 @@ def draw(world):
 	"""render the scene, by casting rays for each column"""
 	# First we draw the background.
 	screen.fill((255,255,255))
-	pygame.draw.rect(screen, (200,200,200), ((0,(plane_y/2)),(plane_x,plane_y)))
+	pygame.draw.rect(screen, (200,200,200),	((0,(plane_y/2)),(plane_x,plane_y)))
 
 	# Now we get the angle of the first ray.
 	angle = (p_a - (fov/2)) % (2*pi)

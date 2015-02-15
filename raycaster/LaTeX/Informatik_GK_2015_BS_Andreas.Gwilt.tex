@@ -5,6 +5,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
 \usepackage{graphicx}
+\usepackage{textcomp}
 \usepackage{fancyvrb}
 \usepackage[german]{babel}
 
@@ -55,29 +56,29 @@ Here goes stuff explaining what things the RC needs to do in a program, as oppos
 \subsubsection{Initialisierung}
 
 Zuerst müssen einige Variablen gesetzt werden. Einige werden in dem ganzen Spiel konstant bleiben:
-\begin{Verbatim}[baselinestretch=1.0]
-TILE = 32 # Länge der Ziegel von world, zum umrechnen in Koordinaten
+\begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
+TILE = 32 # Länge der Ziegel von world
 pi = math.pi
 
-plane\_x = 1280 # Bildschirm/Fenster Auflösung
-plane\_y = 720
+plane_x = 1280 # Bildschirm/Fenster Auflösung
+plane_y = 720
 fov = math.radians(60) # Sichtfeld
 step = 20 # Länge eines Schrittes (für walk())
 turn = math.radians(5) # Wie weit der Spieler sich dreht
 \end{Verbatim}
 
 Jetzt kommen einige Variablen für das Spielfeld und den Spieler, die zum Teil geändert werden können (z.B. Spielerposition):
-\begin{Verbatim}[baselinestretch=1.0]
+\begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 hl = 100 # Horizontale/vertikale länge des Spielfeldes
 vl = 50
 world = [[0 for i in range(vl)] for j in range(hl)] # Welt array
-p\_x = 32 # Spieler x,y
-p\_y = 32
-p\_a = 0 # Spieler Winkel (zeigt am Moment nach "rechts"
-p\_height = TILE / 2 # Spieler höhe
+p_x = 32 # Spieler x,y
+p_y = 32
+p_a = 0 # Spieler Winkel (zeigt am Moment nach "rechts"
+p_height = TILE / 2 # Spieler höhe
 
-plane\_d = (plane\_x / 2) / math.tan(fov/2) # distance from player to plane
-ray\_angle = fov / plane\_x # angle between rays
+plane_d = (plane_x / 2) / math.tan(fov/2) # distance to plane
+ray_angle = fov / plane_x # angle between rays
 \end{Verbatim}
 
 \subsubsection{Die Zentrale Schleife}
@@ -87,10 +88,33 @@ Danach wird \texttt{pygame} (Die Graphik-Library) initialisiert, und die zentral
 	\item Mit dieser information den Spielzustand erneuern
 	\item Das Spiel rendern
 \end{enumerate}
-In meinem Beispiel ist Schritt 1. nachschauen, welche Tasten gedr\"uckt werden. Entsprechend ändert sich \texttt{p\_a}, wenn der Spieler sich drehen will, und \texttt{p\_x}/\texttt{p\_y}, wenn der Spieler sich bewegt. Dazu wird die \texttt{walk(world, p_x, p_y, a)} Funktion abgerufen, die mithilfe der \texttt{cast} Funktion prüft, ob der Weg frei ist oder nicht. Danach wird die Spielwelt nach den \textit{Life}-Regeln von der \texttt{update(world)} Funktion aktualisiert. \\
-Hauptsächlich interresieren wir uns aber für die \texttt{draw(world)} Funktion, die das ganze mithilfe des Raycasters rendert.
+In meinem Beispiel ist Schritt 1. nachschauen, welche Tasten gedr\"uckt werden. Entsprechend ändert sich \texttt{p\_a}, wenn der Spieler sich drehen will, und \texttt{p\_x}/\texttt{p\_y}, wenn der Spieler sich bewegt. Dazu wird die \texttt{walk(world, p\_x, p\_y, a)} Funktion abgerufen, die mithilfe der \texttt{cast} Funktion prüft, ob der Weg frei ist oder nicht. Danach wird die Spielwelt nach den \textit{Life}-Regeln von der \texttt{update(world)} Funktion aktualisiert. \\
+Hauptsächlich interresieren wir uns aber für die \texttt{draw(world)} Funktion, die das ganze mithilfe des Raycasters rendert. Bevor das eigentliche Rendern anfängt, wird der Hintergrund gemalt. In diesem fall heißt das einfach, das Fenster weiß zu füllen, und für den Boden ein hellgraues Rechteck zu malen:
+\begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
+screen.fill((255,255,255))
+pygame.draw.rect(screen, (200,200,200), \
+((0,(plane_y/2)),(plane_x,plane_y)))
+\end{Verbatim}
 
-\subsubsection{cast()}
+Wie beschrieben wirft man jetzt für jede Spalte des Fensters einen Strahl mit \texttt{cast}, und malt mit der Information einen Vertikalen Strich in der Spalte. Dazu muss man zuerst den Winkel des ersten Strahls finden. Dazu subtrahiert man die Hälfte des Blickwinkels von dem Spieler-Winkel \texttt{p\_a}. Dabei muss man mod $2\pi$ bzw. 360\textdegree\ rechnen, damit man immer einen Positiven Winkel hat.
+\begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
+angle = (p_a - (fov/2)) % (2*pi)
+\end{Verbatim}
+
+Mit dem Startwinkel kann man jetzt mit einer Schleife durch die Spalten iterieren, und mit der \texttt{cast} Funktion die Distanz zu der nächsten Wand bestimmen. Nachdem das Fertig ist, wird das Fenster aktualisiert.
+\begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
+for col in range(plane_x):
+        dist = cast(world, p_x, p_y, angle)
+        if dist > 0:
+                pygame.draw.line(screen, (0,0,0), \
+                (col,((plane_y/2) - dist_to_offset(dist))), \
+                (col, (plane_y/2) + dist_to_offset(dist)))
+        angle = (angle + ray_angle) % (2*pi)
+pygame.display.flip()
+\end{Verbatim}
+Wenn diese Distanz nicht -1 (keine Kollision) ist, wird eine Linie auf dem Fenster gemalt. Um herauszufinden, wie lang die Linie sein sollte, dient die \texttt{dist\_to\_offset} Funktion, die eine Distanz annimmt, und den Abstand des Anfangs der Linie zu der Mitte der Spalte zurückgibt. Die wichtigste Funktion ist aber \texttt{cast}: die Funktion, die die Distanz zur nächsten Wand zurückgibt.
+
+\subsubsection{Die \texttt{cast()} Funktion}
 
 \section{Zusammenfassung}
 One or two paragraphs of TL;DR.

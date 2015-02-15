@@ -88,8 +88,8 @@ Danach wird \texttt{pygame} (Die Graphik-Library) initialisiert, und die zentral
 	\item Mit dieser information den Spielzustand erneuern
 	\item Das Spiel rendern
 \end{enumerate}
-In meinem Beispiel ist Schritt 1. nachschauen, welche Tasten gedr\"uckt werden. Entsprechend ändert sich \texttt{p\_a}, wenn der Spieler sich drehen will, und \texttt{p\_x}/\texttt{p\_y}, wenn der Spieler sich bewegt. Dazu wird die \texttt{walk(world, p\_x, p\_y, a)} Funktion abgerufen, die mithilfe der \texttt{cast} Funktion prüft, ob der Weg frei ist oder nicht. Danach wird die Spielwelt nach den \textit{Life}-Regeln von der \texttt{update(world)} Funktion aktualisiert. \\
-Hauptsächlich interresieren wir uns aber für die \texttt{draw(world)} Funktion, die das ganze mithilfe des Raycasters rendert. Bevor das eigentliche Rendern anfängt, wird der Hintergrund gemalt. In diesem fall heißt das einfach, das Fenster weiß zu füllen, und für den Boden ein hellgraues Rechteck zu malen:
+In meinem Beispiel ist Schritt 1. Nachschauen, welche Tasten gedr\"uckt werden. Entsprechend ändert sich \texttt{p\_a}, wenn der Spieler sich drehen will, und \texttt{p\_x}/\texttt{p\_y}, wenn der Spieler sich bewegt. Dazu wird die \texttt{walk(world, p\_x, p\_y, a)} Funktion abgerufen, die mithilfe der \texttt{cast} Funktion prüft, ob der Weg frei ist oder nicht. Danach wird das Spielfeld nach den \textit{Life}-Regeln von der \texttt{update(world)} Funktion aktualisiert. \\
+Hauptsächlich interessieren wir uns aber für die \texttt{draw(world)} Funktion, die das ganze mithilfe des Raycasters rendert. Bevor das eigentliche Rendern anfängt, wird der Hintergrund gemalt. In diesem fall heißt das einfach, das Fenster weiß zu füllen, und für den Boden ein hellgraues Rechteck zu malen:
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 screen.fill((255,255,255))
 pygame.draw.rect(screen, (200,200,200), \
@@ -114,7 +114,106 @@ pygame.display.flip()
 \end{Verbatim}
 Wenn diese Distanz nicht -1 (keine Kollision) ist, wird eine Linie auf dem Fenster gemalt. Um herauszufinden, wie lang die Linie sein sollte, dient die \texttt{dist\_to\_offset} Funktion, die eine Distanz annimmt, und den Abstand des Anfangs der Linie zu der Mitte der Spalte zurückgibt. Die wichtigste Funktion ist aber \texttt{cast}: die Funktion, die die Distanz zur nächsten Wand zurückgibt.
 
-\subsubsection{Die \texttt{cast()} Funktion}
+\subsubsection{Die \texttt{cast} Funktion}
+Die \texttt{cast} Funktion besteht daraus, zuerst nach Schnittpunkten mit den vertikalen Wänden, und dann mit den horizontalen zu prüfen, und dann die kürzeste Distanz zurückzugeben. Zuerst werden \texttt{vvalid} und \texttt{hvalid} auf False gesetzt; wir gehen davon aus, dass wir keinen Wert haben. Sobald wir einen vertikalen oder horizontalen Schnittpunkt finden, werden \texttt{vvalid} bzw. \texttt{hvalid} auf True gesetzt. \\
+Die Reihenfolge vertikal/horizontal ist egal, aber ich habe mit vertikal angefangen. Zuerst müssen wir festlegen, ob es eigentlich Sinn macht, den Strahl zu werfen. Wenn der Winkel \texttt{a} vertikal ist, überspringen wir die Vertikalen Schnittpunkte:
+\begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
+if not (a == 0.5*pi or a == 1.5*pi):
+\end{Verbatim}
+
+Um herauszufinden, wo der Strahl die Vertikalen Grenzen überschreitet, müssen wir einige Werte finden, unter anderem den Ersten Punkt. Betrachten wir zuerst \texttt{v\_x}. Wenn der Strahl nach rechts zeigt (\texttt{(a < 0.5 * pi) or (a > 1.5 * pi)}), ist \texttt{v\_x} der erste Punkt in der neuen Zelle ($TILE*\langle Zelle\_in\_dem\_der\_Spieler\_steht\rangle + TILE$). Sonst ist \texttt{v\_x} der "letzte" Punkt in der Zelle vor der, in der der Spieler steht, also $TILE*\langle Spieler\_Zelle\rangle - 1$. Um die Zelle des Spielers zu finden, teilt man ohne rest durch TILE; in python \texttt{p\_x // TILE}. Somit haben wir diesen code:
+\begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
+if (a < 0.5 * pi) or (a > 1.5 * pi):
+	v_x = (p_x // TILE)*TILE + TILE
+else:
+	v_x = (p_x // TILE)*TILE - 1
+\end{Verbatim}
+
+Die Fälle $a = 0.5\pi$ und $a = 1.5\pi$ haben wir schon ausgeschlossen. Man könnte natürlich auch \texttt{((p\_x // TILE) + 1) * TILE} rechnen, aber ich glaube es macht keinen Unterschied. \\
+
+Schwieriger wird es, \texttt{v\_y} auszurechnen. Dazu werden wir $v\_y = p\_y + \Delta y$ rechnen, indem wir $\Delta y$ mit Tangens berechnen (Siehe Abb.~\ref{fig:vcheck1}). Da wir hier ein rechtwinkliges Dreieck haben, ist $\tan a = \frac{-\Delta y}{\Delta x}$, wobei zu beachten ist, dass $\Delta y$ negativ ist, weil der Winkel ``nach unten'' Zeigt.
+Erst bei einem negativen winkel (bzw. $a > \pi$) ist $\Delta y$ positiv. \\
+\begin{figure}[htbp] 
+        \centering
+        \includegraphics[width=8cm]{vcheck1.png} 
+        \caption{Punkt V finden}
+        \label{fig:vcheck1}
+\end{figure}
+$\Delta x$ ist ziemlich leicht zu berechnen: einfach $v\_x - p\_x$. Somit haben wir $$\tan a = \frac{-\Delta y}{v\_x - p\_x}$$ oder $$\Delta y = -\tan a \cdot (v\_x - p\_x)$$. Also ist $v\_y = p\_y - \tan a \cdot (v\_x - p\_x)$. Nur in dem Spezialfall $a = \pi$ oder $a = 0$ ist $v\_y = p\_y$, da der Strahl sich nicht auf der y-Achse bewegt. Unser Code ist also:
+\begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
+if a == 0 or a == pi:
+	v_y = p_y
+else:
+	v_y = int(p_y - math.tan(a)*(v_x-p_x))
+\end{Verbatim}
+
+Als nächstes müssen wir herausfinden, wie viel nach links/rechts (\texttt{x\_i})und wie viel nach oben/unten (\texttt{y\_i}) wir gehen müssen, um den neuen Punkt zu finden. Diese Werte werden für jede Iteration der Schleife zu den alten Koordinaten addiert. Weil wir immer auf der nächsten Vertikalen überprüfen, ist \texttt{x\_i} +/- \texttt{TILE}. Wie bei \texttt{v\_x} ist \texttt{x\_i} positiv, wenn der Strahl nach rechts verläuft, und sonst negativ. Da wir das schon für \texttt{v\_x} überprüfen, können wir den Code in den gleichen \texttt{if}-Block stellen, um dies zu erlangen:
+\begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
+if (a < 0.5 * pi) or (a > 1.5 * pi):
+	x_i = TILE
+	v_x = (p_x // TILE)*TILE + TILE
+else:
+	x_i = -1 * TILE
+	v_x = (p_x // TILE)*TILE - 1
+\end{Verbatim}
+
+\begin{figure}[htbp] 
+        \centering
+        \includegraphics[width=8cm]{vcheck2.png} 
+        \caption{x\_i und y\_i}
+\end{figure}
+Danach kommt y\_i, wozu wir wieder den Tangens brauchen. Dieses Mal ist es aber ein bisschen einfacher: Wieder haben wir $$\tan a = \frac{-y\_i}{x\_i}$$aber dieses mal Kennen wir schon \texttt{x\_i}, also formen wir einfach um zu $$y\_i = -\tan a \cdot x\_i$$
+Auch hier ist $y\_i = 0$, wenn der Strahl horizontal ist. Eigentlich müssen wir nicht einen zusätzlichen \texttt{if}-Block dafür haben, denn $\tan 0 = 0$ und $\tan \pi = 0$, aber es hilft, darüber bewusst zu sein. Jetzt ist unser ganzer Code, um diese Werte zu bestimmen, wie folgt:
+\begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
+# Get x_i (+TILE if pointing right, -TILE if left).
+# Get v_x (x coord of the first point).
+if (a < 0.5 * pi) or (a > 1.5 * pi): # pointing right
+        x_i = TILE
+        v_x = (p_x // TILE)*TILE + TILE
+else:
+        x_i = -1 * TILE
+        v_x = (p_x // TILE)*TILE - 1
+
+# Get y_i, using tan.
+# Get v_y, using magic.
+if a == 0 or a == pi: # completely horizontal ray
+        y_i = 0
+        v_y = p_y
+else:
+        y_i = int(math.tan(a) * (-1) * x_i)
+        v_y = int(p_y - math.tan(a)*(v_x-p_x))
+\end{Verbatim}
+
+Leser, die den Code gelesen haben, haben vielleicht gemerkt, dass bei \texttt{y\_i} und \texttt{v\_y} um den Ausdruck die \texttt{int()} Funktion benutzt wird. Die Koordinaten müssen noch immer \texttt{int}s bleiben, aber python konvertiert in einem Versuch, hilfreich zu sein, \texttt{int}s automatisch in \texttt{float}s. \\
+
+Jetzt, wo wir die nötigen Werte haben, können wir die Schleife beginnen, die durch die Punkte iteriert. In der Schleife prüfen wir einfach, ob der punkt $(v\_x,v\_y)$ in einem "vollen" Feld oder nicht steht. Wie vorher geschrieben, ist dies Methode, um von Koordinaten zu \texttt{world}-Koordinaten zu kommen, einfach $\lfloor k \div TILE \rfloor$, in python \texttt{k // TILE}. Die Überprüfung, ob Punkt V auf einem vollen Feld steht, ist also einfach \texttt{world[v\_x // TILE][v\_y // TILE]}: die Zellen sind sowieso 1 oder 0. Wenn das also 1 ist, wird \texttt{vvalid} also auf \texttt{True} gesetzt, und die Schleife verlassen. \\
+Weil es passieren kann, dass der erste Punkt V schon außerhalb des Spielfeldes ist, ist diese ganze Überprüfung in einem \texttt{try} gepackt. Wenn ein \texttt{IndexError} passiert, \texttt{break}ed es wieder die Schleife und geht weiter zu den horizontalen Überprüfungen. \\
+Ansonsten werden zu \texttt{v\_x} und \texttt{v\_y} \texttt{x\_i} bzw. \texttt{y\_i} addiert, und die Schleife fortgesetzt, solang V noch ein gültiger Punkt ist. Der resultierende Code ist also:
+\begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
+# hl is the number of cells along the horizontal
+for i in range(hl):
+        try:
+                if world[v_x // TILE][v_y // TILE]:
+                        vvalid = True
+                        break
+        except IndexError:
+                if debug:
+                        print("v. error!", v_x,v_y, \
+                        "\n Ray:", p_x, p_y, a)
+                break
+        v_x += x_i
+        v_y += y_i
+        if v_x >= (hl*TILE) or v_y >= (vl*TILE):
+                break
+\end{Verbatim}
+
+Zuletzt wird noch die Distanz zwischen den Punkten P und V berechnet, mit dem Satz des Pythagoras:
+\begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
+vdist = math.sqrt((v_x-p_x)**2 + (v_y-p_y)**2)
+\end{Verbatim}
+
+Damit haben wir die Erste vertikale Grenze, die der Strahl schneidet.
+
 
 \section{Zusammenfassung}
 One or two paragraphs of TL;DR.

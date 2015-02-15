@@ -130,7 +130,7 @@ def cast(world, p_x, p_y, a):
 
 		for i in range(hl): # maximum number of iterations is the number of cells along the horizontal
 			try:
-				if world[v_x // 64][v_y // 64]:
+				if world[v_x // TILE][v_y // TILE]:
 					vvalid = True
 					break
 			except IndexError:
@@ -167,7 +167,7 @@ def cast(world, p_x, p_y, a):
 
 		for i in range(vl):
 			try:
-				if world[h_x // 64][h_y // 64]:
+				if world[h_x // TILE][h_y // TILE]:
 					hvalid = True
 					break
 			except IndexError:

@@ -90,7 +90,7 @@ plane_d = (plane_x / 2) / math.tan(fov/2) # distance to plane
 ray_angle = fov / plane_x # angle between rays
 \end{Verbatim}
 
-\subsection{Die Zentrale Schleife}
+\subsection{Die Zentrale Schleife / \texttt{draw} Funktion}
 \subsubsection{Schleife}
 Danach wird \texttt{pygame} (Die Graphik-Library) initialisiert, und die zentrale Schleife angefangen. Spiel-schleifen haben in der Regel drei schritte:
 \begin{enumerate}
@@ -264,7 +264,7 @@ Um die Struktur des Programms zusammenzufassen:
 	\item Diverse (globale) Variablen werden initialisiert
 	\item Die zentrale Schleife des Spiels wird begonnen. Diese schleife macht folgendes:
 	\begin{itemize}
-		\item Benuztereingaben holen, \texttt{walk()} oder \texttt{quit()} aufrufen
+		\item Benutzereingaben holen, \texttt{walk()} oder \texttt{quit()} aufrufen
 		\item Mit draw() rendern
 		\item Mit update() die Welt aktualisieren
 	\end{itemize}
@@ -281,7 +281,7 @@ Um die Struktur des Programms zusammenzufassen:
 	\item Durch die Spalten des Fensters iterieren:
 	\begin{itemize}
 		\item Strahl mit \texttt{cast()} werfen
-		\item Mit der distanz und \texttt{dist\_to\_offset()} Strich malen
+		\item Mit der Distanz und \texttt{dist\_to\_offset()} Strich malen
 		\item Winkel inkrementieren
 	\end{itemize}
 	\item Fenster aktualisieren

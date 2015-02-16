@@ -45,18 +45,39 @@ In den frühen 1990ern, als Raycasting beliebt wurde, hatte man noch ziemlich we
 Raycasting musste jedoch sehr viele Kompromisse eingehen, um so schnell zu sein. Das Spielfeld war ein zweidimensionales Array, also konnte es nur Rechte Winkel geben, und Decke und Boden mussten immer gleich hoch bleiben. Man erkennt an dem Screenshot von Wolf3D deutlich, dass das Spiel nicht wirklich dreidimensional ist. Auch sieht das Bild blockhaft aus, und die Beleuchtung ist nicht realistisch.
 
 \section{Die Geschichte des Raycasters}
-Raycasting wurde schon diskutiert, lange bevor PCs leistungsstark genug waren, um es wirklich in Spielen zu benutzen. Eine 1982 veröffentlichte Abhandlung von Scott Roth beschreibt Raycasting als Methode, dreidimensionale Körper zu rendern. \\
-
-Eines der ersten Spiele, die das Prinzip implementierten, war \textit{Hovertank 3D}, was in April 1991 von id Software in einem Magazin veröffentlicht wurde. \textit{Hovertank 3D} war noch sehr primitiv und hatte noch keine Texturen auf den Wänden, noch dazu wurde es nicht für eine große Zielgruppe veröffentlicht, aber es war der Anfang eines neuen Genre von Spielen. Im darauffolgenden November erschien \textit{Catacomb 3-D}, was Texturen hatte, und oft als der erste Ego-Shooter gesehen wird. \\
-
+Raycasting wurde schon diskutiert, lange bevor PCs leistungsstark genug waren, um es wirklich in Spielen zu benutzen. Eine 1982 veröffentlichte Abhandlung von Scott Roth beschreibt Raycasting als Methode, dreidimensionale Körper zu rendern.
+\paragraph*{}
+Eines der ersten Spiele, die das Prinzip implementierten, war \textit{Hovertank 3D}, was in April 1991 von id Software in einem Magazin veröffentlicht wurde. \textit{Hovertank 3D} war noch sehr primitiv und hatte noch keine Texturen auf den Wänden, noch dazu wurde es nicht für eine große Zielgruppe veröffentlicht, aber es war der Anfang eines neuen Genre von Spielen. Im darauffolgenden November erschien \textit{Catacomb 3-D}, was Texturen hatte, und oft als der erste Ego-Shooter gesehen wird.
+\paragraph*{}
 Zufrieden mit den zwei ``Prototypen'' entwickelten id Software ihr neues Spiel \textit{Wolfenstein 3D}, das die Technologie von \textit{Catacomb 3-D} übernahm. \textit{Wolfenstein 3D}, was 1992 von Apogee Software veröffentlicht wurde, war ein großer Erfolg und machte Ego-Shooter, und damit den Raycaster, bekannt. Danach schaffte id Software das revolutionäre Spiel \textit{DOOM}. \textit{DOOM} war ein noch viel größerer Erfolg, der eine sehr verbesserten Spiel-Engine hatte. Die neue Engine war jedoch nicht mehr wirklich ein echter Raycaster, sondern benutzte Binary Space Partitioning und andere fortgeschrittene Methoden. Heutzutage findet der Raycaster nicht mehr viel Verwendung als Renderer, aber das Prinzip wird mit dem Raytracer fortgeführt. Der Raytracer arbeitet immer in drei Dimensionen, und ist rekursiv, d.h. er simuliert den kompletten Gang eines Lichtstrahles, inklusiv Reflexionen. Raytracing ist aber noch immer zu langsam für Echtzeit Darstellung, und findet eher als Renderer von stillen Bildern Gebrauch.
 
 \chapter{Wie funktioniert ein Raycaster?}
 \section{Allgemein}
+
+\subsection{Was macht ein Raycaster}
+Allgemein gesehen muss ein Raycaster den ersten Schnittpunkt zwischen einem Strahl (theoretisch eine Halbgerade) und einem Körper finden. Wir stellen uns vor, dass ein Strahl von einem Punkt (das Auge des Spieler) aus in einer bestimmten Richtung verläuft. Wir führen diesen Strahl immer weiter, bis er auf etwas trifft. Dann berechnen wir die Länge des Strahls, und wissen wie weit weg das Objekt ist. Man kann das in beliebig vielen Dimensionen machen, aber der Raycaster ist zweidimensional.
+
+Für jede Spalte des Fensters/Bildschirms wirft er einen Strahl (also z.B. 1920 Strahlen bei einer FHD auflösung), und sieht wie weit weg er auf etwas stößt. Entsprechend wird dann eine vertikale Linie auf dem Bildschirm gemalt. Abb~\ref{fig:rcaster} zeigt ein Diagramm dazu.
+\begin{figure}[htbp] 
+        \centering
+        \includegraphics[width=8cm]{raycasting.png} 
+        \caption{Bild von http://www.fabiensanglard.net/wolf3d/index.php}
+        \label{fig:rcaster}
+\end{figure}
+
+Leider ist es aber sehr langsam, für jeden Pixel des Strahls zu sehen, ob er in einem Objekt oder nicht ist. Deshalb sehen wir das Spielfeld als Gitter (Siehe Abb.~\ref{fig:grid}), und müssen so an viel weniger Stellen prüfen. In dem Gitter ist der Spieler P in dem Feld (0,3). Der Strahl (der von P kommt und den Winkel $\alpha$ hat) muss jetzt nur an dem ersten Punkten in (1,3), (1,2), (2,2) und (2,1) geprüft werden.
+\begin{figure}[htbp] 
+        \centering
+        \includegraphics[width=8cm]{grid.png} 
+        \caption{An den roten Punkten geht der Strahl in ein neues Feld}
+        \label{fig:grid}
+\end{figure}
+
+Bevor wir weiter gehen, ist es wichtig zu wissen, welche Variablen existieren, und wie sie hier heißen.
+
 \subsection{Daten}
-Die Informationen (z.B. das Spielfeld oder die Spielerposition) müssen auf bestimmte Art gespeichert werden, um von dem Raycaster benutzt zu werden. In meiner Implementierung habe ich eine Funktion, die einen Strahl in einem bestimmten Winkel von einem bestimmten Punkt wirft: \texttt{cast(world, p\_x, p\_y, a)}. Die Welt wird als zweidimensionales Array gespeichert, in dessen Feldern 1 für eine Wand oder Zelle steht, und 0 für leeren Raum. Man könnte auch Farben speichern, oder mehrere Zahlen für mehrere Texturen/Farben haben. Meistens würde man nur Wände speichern, aber ich habe als Spiel Conways \textit{Spiel des Lebens} genommen, ein zweidimensionaler Zelluläre Automat, in dem das Spielfeld in dem eben beschriebenen Format gespeichert wird. Man kann aber zwischen einem Kartesischen Koordinatensystem, in dem (0,0) unten links ist, und einem Array Kartesischen Koordinatensystem, in dem (0,0) oben links ist, wählen. Ich habe mich für (0,0) unten links entschieden, da es (meiner Ansicht nach) leichter verständlich ist. \\
-Dann muss man die Spielerposition speichern (die Variablen \texttt{p\_x} und \texttt{p\_y}). Diese Koordinaten sind aber in einem anderen Format als das Spielfeld. Man will nämlich den Spieler innerhalb eines Feldes bewegen können. Also hat man eine Konstante (\texttt{TILE}), die die Länge eines Feldes beschreibt. Um zu bestimmen, in welchem Feld der Spieler steht, rechnet man einfach \texttt{world[p\_x // TILE][p\_y // TILE]}: man teilt ohne Rest die Spielerkoordinaten durch die Feldlänge \texttt{TILE}. \\
-Der Winkel des Spielers oder des Strahls ist auch wichtig. Da die Python-Funktionen für sin, cos, etc. das Bogenmaß annehmen, habe ich alle Winkel so gespeichert. Die Funktionen gehen auch davon aus, dass ein Winkel immer positiv und unter 2$\pi$ bleiben wird. Die ``Richtung'' der Winkel muss man auch selber definieren, aber ich habe 0 als rechts definiert, und $\pi$/2 als unten (auf die x-Achse zeigend).
+Better data para
+
 \subsection{Was ist die Aufgabe des Raycasters?}
 Here goes stuff explaining what things the RC needs to do in a program, as opposed to things like adding sprites, etc.
 
@@ -145,16 +166,18 @@ else:
 	v_x = (p_x // TILE)*TILE - 1
 \end{Verbatim}
 
-Die Fälle $a = 0.5\pi$ und $a = 1.5\pi$ haben wir schon ausgeschlossen. Man könnte natürlich auch \texttt{((p\_x // TILE) + 1) * TILE} rechnen, aber ich glaube es macht keinen Unterschied. \\
+Die Fälle $a = 0.5\pi$ und $a = 1.5\pi$ haben wir schon ausgeschlossen. Man könnte natürlich auch \texttt{((p\_x // TILE) + 1) * TILE} rechnen, aber ich glaube es macht keinen Unterschied.
 
 Schwieriger wird es, \texttt{v\_y} auszurechnen. Dazu werden wir $v\_y = p\_y + \Delta y$ rechnen, indem wir $\Delta y$ mit Tangens berechnen (Siehe Abb.~\ref{fig:vcheck1}). Da wir hier ein rechtwinkliges Dreieck haben, ist $\tan a = \frac{-\Delta y}{\Delta x}$, wobei zu beachten ist, dass $\Delta y$ negativ ist, weil der Winkel ``nach unten'' Zeigt.
-Erst bei einem negativen winkel (bzw. $a > \pi$) ist $\Delta y$ positiv. \\
+Erst bei einem negativen winkel (bzw. $a > \pi$) ist $\Delta y$ positiv.
+
 \begin{figure}[htbp] 
         \centering
         \includegraphics[width=8cm]{vcheck1.png} 
         \caption{Punkt V finden}
         \label{fig:vcheck1}
 \end{figure}
+
 $\Delta x$ ist ziemlich leicht zu berechnen: einfach $v\_x - p\_x$. Somit haben wir $$\tan a = \frac{-\Delta y}{v\_x - p\_x}$$ oder $$\Delta y = -\tan a \cdot (v\_x - p\_x)$$. Also ist $v\_y = p\_y - \tan a \cdot (v\_x - p\_x)$. Nur in dem Spezialfall $a = \pi$ oder $a = 0$ ist $v\_y = p\_y$, da der Strahl sich nicht auf der y-Achse bewegt. Unser Code ist also:
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 if a == 0 or a == pi:
@@ -201,7 +224,7 @@ else:
         v_y = int(p_y - math.tan(a)*(v_x-p_x))
 \end{Verbatim}
 
-Leser, die den Code gelesen haben, haben vielleicht gemerkt, dass bei \texttt{y\_i} und \texttt{v\_y} um den Ausdruck die \texttt{int()} Funktion benutzt wird. Die Koordinaten müssen noch immer \texttt{int}s bleiben, aber python konvertiert in einem Versuch, hilfreich zu sein, \texttt{int}s automatisch in \texttt{float}s. \\
+Leser, die den Code gelesen haben, haben vielleicht gemerkt, dass bei \texttt{y\_i} und \texttt{v\_y} um den Ausdruck die \texttt{int()} Funktion benutzt wird. Die Koordinaten müssen noch immer \texttt{int}s bleiben, aber python konvertiert in einem Versuch, hilfreich zu sein, \texttt{int}s automatisch in \texttt{float}s.
 
 \paragraph{Die Schleife:}
 Jetzt, wo wir die nötigen Werte haben, können wir die Schleife beginnen, die durch die Punkte iteriert. In der Schleife prüfen wir einfach, ob der punkt $(v\_x,v\_y)$ in einem ``vollen'' Feld oder nicht steht. Wie vorher geschrieben, ist dies Methode, um von Koordinaten zu \texttt{world}-Koordinaten zu kommen, einfach $\lfloor k \div TILE \rfloor$, in python \texttt{k // TILE}. \\

@@ -43,7 +43,7 @@ Ein Raycaster ist eine Rendermethode, die eine pseudo-3D Welt basierend auf eine
 
 Raycasting ist eigentlich ein ziemlich weiter Begriff, der meistens für die Rendermethode benutzt wird. Allgemein ist es aber eine Technik, um zu sehen, ob ein Strahl einen Körper schneidet. Man ``wirft'' einen Strahl, und überprüft, ob er eine Ebene schneidet oder nicht. Diese ist dem Raytracing sehr ähnlich, aber ist viel limitierter und auch schneller. Im Gegensatz zu Raycasting (was für jeden Pixel oder jede Spalte von Pixeln des Bildschirms einen Strahl wirft) simuliert Raytracing annähernd die Photonen, die von Lichtquellen auf Ebenen reflektieren und eventuell das Auge erreichen.
 
-Ich habe, um den Raycaster zu erklären, eine in der ersten Person gerenderten Version von Conways \textit{Spiel des Lebens}\cite{life} geschrieben, die einen Raycaster zum rendern benutzt. In dieser Facharbeit werde ich die Funktionsweise des Raycasters erklären.
+Ich habe, um den Raycaster zu erklären, eine in der ersten Person gerenderten Version von Conways \textit{Spiel des Lebens}\cite{life} geschrieben, die einen Raycaster zum Rendern benutzt. In dieser Facharbeit werde ich die Funktionsweise des Raycasters erklären.
 
 \begin{figure}[htbp] 
         \centering
@@ -58,7 +58,7 @@ Raycasting ist eine Methode, um zu überprüfen, ob ein Strahl eine Fläche schn
 In meinem Beispiel nutze ich die Methode (in der \texttt{cast()} Funktion) hauptsächlich dazu, das Spielfeld darzustellen, aber auch als Kollisionserkennung für die \texttt{walk()} Funktion. Ich werde mich jedoch auf den Raycaster als Rendermethode konzentrieren. Raycasting wird auch meistens in Spielen benutzt, wo schnelles Rendern wichtig ist; es ist als realistische Rendermethode nicht geeignet.
 
 \paragraph*{}
-In den frühen 1990ern, als Raycasting beliebt wurde, hatte man noch ziemlich wenig Rechenleistung, wollte aber ``3D'' Spiele schreiben. Eine wirklich dreidimensionales Spiel-Engine (wie die 1996 erschienene Quake Engine) war noch nicht schnell genug, um in einem Spiel benutzt zu werden, also verwendete man Methoden wie Raycasting, um die Illusion von 3D herzustellen. Das vielleicht berühmteste Spiel, was Raycasting benutzte, war Wolfenstein 3D (Auch der erste beliebte Ego-Shooter). Wolfenstein 3D hatte ein zweidimensionales Spielfeld, was in 3D dargestellt wurde.
+In den frühen 1990ern, als Raycasting beliebt wurde, hatte man noch ziemlich wenig Rechenleistung, wollte aber ``3D'' Spiele schreiben. Eine wirklich dreidimensionale Spiel-Engine (wie die 1996 erschienene Quake Engine) war noch nicht schnell genug, um in einem Spiel benutzt zu werden, also verwendete man Methoden wie Raycasting, um die Illusion von 3D herzustellen. Das vielleicht berühmteste Spiel, was Raycasting benutzte, war Wolfenstein 3D (Auch der erste beliebte Ego-Shooter). Wolfenstein 3D hatte ein zweidimensionales Spielfeld, was in 3D dargestellt wurde.
 
 Raycasting musste jedoch sehr viele Kompromisse eingehen, um so schnell zu sein. Das Spielfeld war ein zweidimensionales Array, also konnte es nur Rechte Winkel geben, und Decke und Boden mussten immer gleich hoch bleiben. Man erkennt an Abb~\ref{fig:wolf3d} deutlich, dass das Spiel nicht wirklich dreidimensional ist. Auch sieht das Bild blockhaft aus, und die Beleuchtung ist nicht realistisch.
 
@@ -67,7 +67,7 @@ Raycasting wurde schon diskutiert, lange bevor PCs leistungsstark genug waren, u
 \paragraph*{}
 Eines der ersten Spiele, die das Prinzip implementierten, war \textit{Hovertank 3D}, was in April 1991 von id Software in einem Magazin veröffentlicht wurde. \textit{Hovertank 3D} war noch sehr primitiv und hatte noch keine Texturen auf den Wänden, noch dazu wurde es nicht für eine große Zielgruppe veröffentlicht, aber es war der Anfang eines neuen Genre von Spielen. Im darauffolgenden November erschien \textit{Catacomb 3-D}, was Texturen hatte, und oft als der erste Ego-Shooter gesehen wird.
 \paragraph*{}
-Zufrieden mit den zwei ``Prototypen'' entwickelten id Software ihr neues Spiel \textit{Wolfenstein 3D}, das die Technologie von \textit{Catacomb 3-D} übernahm. \textit{Wolfenstein 3D}, was 1992 von Apogee Software veröffentlicht wurde, war ein großer Erfolg und machte Ego-Shooter, und damit den Raycaster, bekannt und beliebt. Wolfenstein 3D war, wie der name sagt, 3D, und hatte für die Zeit bahnbrechende Graphik, aber lief auf Heim-PCs.
+Zufrieden mit den zwei ``Prototypen'' entwickelten id Software ihr neues Spiel \textit{Wolfenstein 3D}, das die Technologie von \textit{Catacomb 3-D} übernahm. \textit{Wolfenstein 3D}, was 1992 von Apogee Software veröffentlicht wurde, war ein großer Erfolg und machte Ego-Shooter, und damit den Raycaster, bekannt und beliebt. Wolfenstein 3D war, wie der Name sagt, 3D, und hatte für die Zeit bahnbrechende Graphik, aber lief auf Heim-PCs.
 
 Danach schaffte id Software das revolutionäre Spiel \textit{DOOM}. \textit{DOOM} war ein noch viel größerer Erfolg, der eine sehr verbesserten Spiel-Engine hatte. Die neue Engine war jedoch nicht mehr wirklich ein echter Raycaster, sondern benutzte Binary Space Partitioning und andere fortgeschrittene Methoden.
 
@@ -77,8 +77,8 @@ Heutzutage findet der Raycaster nicht mehr viel Verwendung als Renderer, aber da
 \mychapter{2}{Wie funktioniert ein Raycaster?}
 \section{Allgemein}
 
-\subsection{Was macht ein Raycaster}
-Allgemein gesehen muss ein Raycaster den ersten Schnittpunkt zwischen einem Strahl (theoretisch eine Halbgerade) und einem Körper finden. Wir stellen uns vor, dass ein Strahl von einem Punkt (das Auge des Spieler) aus in einer bestimmten Richtung verläuft. Wir führen diesen Strahl immer weiter, bis er auf etwas trifft. Dann berechnen wir die Länge des Strahls, und wissen wie weit weg das Objekt ist. Man kann das in beliebig vielen Dimensionen machen, aber der Raycaster ist zweidimensional.
+\subsection{Was macht ein Raycaster?}
+Allgemein gesehen muss ein Raycaster den ersten Schnittpunkt zwischen einem Strahl (theoretisch eine Halbgerade) und einem Körper finden. Wir stellen uns vor, dass ein Strahl von einem Punkt (das Auge des Spieler) aus in einer bestimmten Richtung verläuft. Wir führen diesen Strahl immer weiter, bis er auf etwas trifft. Dann berechnen wir die Länge des Strahls, und wissen wie weit das Objekt weg ist. Man kann das in beliebig vielen Dimensionen machen, aber der Raycaster ist zweidimensional.
 
 Für jede Spalte des Fensters/Bildschirms wirft er einen Strahl (also z.B. 1920 Strahlen bei einer FHD Auflösung), und sieht wie weit weg er auf etwas stößt. Entsprechend wird dann eine vertikale Linie auf dem Bildschirm gemalt. Abb~\ref{fig:rcaster} zeigt ein Diagramm dazu.
 \begin{figure}[htbp] 
@@ -112,10 +112,10 @@ Um z.B. Feld (0,1) zu finden, sehen wir einfach in \texttt{world[0][1]} nach. F�
 \paragraph*{}
 Für den Spieler, den Strahl, und eventuellen Gegnern wollen wir aber genauere Koordinaten haben. Dazu müssen wir wir definieren, wie lang ein \texttt{world}-Feld in den genauen Koordinaten ist. Die Größe nenne ich \texttt{TILE} (in diesem Fall auf 32 gesetzt).
 
-Der Spieler hat die genauen Koordinaten \texttt{p\_x} und \texttt{p\_y}, und den Winkel \texttt{p\_a}. Um die \texttt{world}-Koordinaten des Spielers zu finden, teilen wir ohne rest durch die Länge eines Feldes, z.B. \texttt{world[p\_x // TILE][p\_y // 64]}. Das bringt uns zu noch einem Wichtigem Punkt:
+Der Spieler hat die genauen Koordinaten \texttt{p\_x} und \texttt{p\_y}, und den Winkel \texttt{p\_a}. Um die \texttt{world}-Koordinaten des Spielers zu finden, teilen wir ohne Rest durch die Länge eines Feldes, z.B. \texttt{world[p\_x // TILE][p\_y // 64]}. Das bringt uns zu noch einem wichtigem Punkt:
 
 \subsubsection{Winkel}
-Alle Winkel in meinem Program sind im Bogenmaß, und zeigen "nach unten" von der Horizontalen (Abb.~\ref{fig:angles}). Auch gehen alle Funktionen davon aus, dass ein Winkel immer positiv und immer unter $2\pi$ bleibt.
+Alle Winkel in meinem Programm sind im Bogenmaß, und zeigen "nach unten" von der Horizontalen (Abb.~\ref{fig:angles}). Auch gehen alle Funktionen davon aus, dass ein Winkel immer positiv und immer unter $2\pi$ bleibt.
 \begin{figure}[htbp] 
         \centering
         \includegraphics[width=4cm]{angles.png} 
@@ -148,7 +148,7 @@ Betrachten wir die vertikalen Schnittstellen: alle sind auf der x-Achse eine Fel
 
 Wenn wir den ersten Punkt gefunden haben, wo der Strahl eine vertikale Grenze des Gitters überschreitet, prüfen wir nach, ob dieser Punkt in \texttt{world}-Koordinaten gefüllt (1) oder nicht (0) ist. Wenn nicht, erweitern wir den Strahl, indem wir zu unserem ersten Punkt die Intervalle \texttt{x\_i} und \texttt{y\_i} addieren. Das wird wiederholt, bis der Strahl auf etwas trifft (also in einem \texttt{1} Feld steht).
 
-Das gleiche wird dann noch mal mit den horizontalen Schnittstellen gemacht, bis man zwei Punkte oder Distanzen (zu den Punkten) hat. Dann kann die kürzere Distanz zurückgegeben werden, und für das rendern oder gehen benutzt werden.
+Das gleiche wird dann noch mal mit den horizontalen Schnittstellen gemacht, bis man zwei Punkte oder Distanzen (zu den Punkten) hat. Dann kann die kürzere Distanz zurückgegeben werden, und für das Rendern oder Gehen benutzt werden.
 
 \section{Schritt für Schritt Erklärung}
 
@@ -170,42 +170,42 @@ turn = math.radians(5) # Wie weit der Spieler sich dreht
 
 Jetzt kommen einige Variablen für das Spielfeld und den Spieler, die zum Teil geändert werden können (z.B. Spielerposition):
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
-hl = 100 # Horizontale/vertikale länge des Spielfeldes
+hl = 100 # Horizontale/vertikale Länge des Spielfeldes
 vl = 50
 world = [[0 for i in range(vl)] for j in range(hl)] # Welt array
 p_x = 32 # Spieler x,y
 p_y = 32
-p_a = 0 # Spieler Winkel (zeigt am Moment nach "rechts"
-p_height = TILE / 2 # Spieler höhe
+p_a = 0 # Spieler Winkel (zeigt am Moment nach "rechts")
+p_height = TILE / 2 # Spieler Höhe
 
 plane_d = (plane_x / 2) / math.tan(fov/2) # distance to plane
 ray_angle = fov / plane_x # angle between rays
 \end{Verbatim}
 
-\subsection{Die Zentrale Schleife / \texttt{draw} Funktion}
+\subsection{Die zentrale Schleife / \texttt{draw} Funktion}
 \subsubsection{Schleife}
-Danach wird \texttt{pygame} (Die Graphik-Library) initialisiert, und die zentrale Schleife angefangen. Spiel-schleifen haben in der Regel drei schritte:
+Danach wird \texttt{pygame} (Die Graphik-Library) initialisiert, und die zentrale Schleife angefangen. Spiel-schleifen haben in der Regel drei Schritte:
 \begin{enumerate}
 	\item Befehle von dem Benutzer holen
-	\item Mit dieser information den Spielzustand erneuern
+	\item Mit dieser Information den Spielzustand erneuern
 	\item Das Spiel rendern
 \end{enumerate}
 In meinem Beispiel ist Schritt 1. Nachschauen, welche Tasten gedr\"uckt werden. Entsprechend ändert sich \texttt{p\_a}, wenn der Spieler sich drehen will, und \texttt{p\_x}/\texttt{p\_y}, wenn der Spieler sich bewegt. Dazu wird die \texttt{walk(world, p\_x, p\_y, a)} Funktion abgerufen, die mithilfe der \texttt{cast} Funktion prüft, ob der Weg frei ist oder nicht. Danach wird das Spielfeld nach den \textit{Life}-Regeln von der \texttt{update(world)} Funktion aktualisiert.
 
 \subsubsection{\texttt{draw()}}
-Hauptsächlich interessieren wir uns aber für die \texttt{draw(world)} Funktion, die das ganze mithilfe des Raycasters rendert. Bevor das eigentliche Rendern anfängt, wird der Hintergrund gemalt. In diesem fall heißt das einfach, das Fenster weiß zu füllen, und für den Boden ein hellgraues Rechteck zu malen:
+Hauptsächlich interessieren wir uns aber für die \texttt{draw(world)} Funktion, die das Ganze mithilfe des Raycasters rendert. Bevor das eigentliche Rendern anfängt, wird der Hintergrund gemalt. In diesem Fall heißt das einfach, das Fenster weiß zu füllen, und für den Boden ein hellgraues Rechteck zu malen:
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 screen.fill((255,255,255))
 pygame.draw.rect(screen, (200,200,200), \
 ((0,(plane_y/2)),(plane_x,plane_y)))
 \end{Verbatim}
 
-Wie beschrieben wirft man jetzt für jede Spalte des Fensters einen Strahl mit \texttt{cast}, und malt mit der Information einen Vertikalen Strich in der Spalte. Dazu muss man zuerst den Winkel des ersten Strahls finden. Dazu subtrahiert man die Hälfte des Blickwinkels von dem Spieler-Winkel \texttt{p\_a}. Dabei muss man mod $2\pi$ bzw. 360\textdegree\ rechnen, damit man immer einen Positiven Winkel hat.
+Wie beschrieben wirft man jetzt für jede Spalte des Fensters einen Strahl mit \texttt{cast}, und malt mit der Information einen Vertikalen Strich in der Spalte. Dazu muss man zuerst den Winkel des ersten Strahls finden. Dazu subtrahiert man die Hälfte des Blickwinkels von dem Spieler-Winkel \texttt{p\_a}. Dabei muss man mod $2\pi$ bzw. 360\textdegree\ rechnen, damit man immer einen positiven Winkel hat.
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 angle = (p_a - (fov/2)) % (2*pi)
 \end{Verbatim}
 
-Mit dem Startwinkel kann man jetzt mit einer Schleife durch die Spalten iterieren, und mit der \texttt{cast} Funktion die Distanz zu der nächsten Wand bestimmen. Nachdem das Fertig ist, wird das Fenster aktualisiert.
+Mit dem Startwinkel kann man jetzt mit einer Schleife durch die Spalten iterieren, und mit der \texttt{cast} Funktion die Distanz zu der nächsten Wand bestimmen. Nachdem das fertig ist, wird das Fenster aktualisiert.
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 for col in range(plane_x):
         dist = cast(world, p_x, p_y, angle)
@@ -220,16 +220,16 @@ Wenn diese Distanz nicht -1 (keine Kollision) ist, wird eine Linie auf dem Fenst
 
 \subsection{Die \texttt{cast} Funktion}
 \subsubsection{Struktur}
-Die \texttt{cast} Funktion besteht daraus, zuerst nach Schnittpunkten mit den vertikalen Wänden, und dann mit den horizontalen zu prüfen, und dann die kürzeste Distanz zurückzugeben. Zuerst werden \texttt{vvalid} und \texttt{hvalid} auf False gesetzt; wir gehen davon aus, dass wir keinen Wert haben. Sobald wir einen vertikalen oder horizontalen Schnittpunkt finden, werden \texttt{vvalid} bzw. \texttt{hvalid} auf True gesetzt. \\
+Die \texttt{cast} Funktion besteht daraus, zuerst nach Schnittpunkten mit den vertikalen Wänden, dann mit den horizontalen zu prüfen, und dann die kürzeste Distanz zurückzugeben. Zuerst werden \texttt{vvalid} und \texttt{hvalid} auf False gesetzt; wir gehen davon aus, dass wir keinen Wert haben. Sobald wir einen vertikalen oder horizontalen Schnittpunkt finden, werden \texttt{vvalid} bzw. \texttt{hvalid} auf True gesetzt. \\
 Die Reihenfolge vertikal/horizontal ist egal, aber ich habe mit vertikal angefangen.
 \subsubsection{Vertikale Schnittpunkte}
-Zuerst müssen wir festlegen, ob es eigentlich Sinn macht, den Strahl zu werfen. Wenn der Winkel \texttt{a} vertikal ist, überspringen wir die Vertikalen Schnittpunkte:
+Zuerst müssen wir festlegen, ob es eigentlich Sinn macht, den Strahl zu werfen. Wenn der Winkel \texttt{a} vertikal ist, überspringen wir die vertikalen Schnittpunkte:
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 if not (a == 0.5*pi or a == 1.5*pi):
 \end{Verbatim}
 
 \paragraph{Der erste Punkt:}
-Um herauszufinden, wo der Strahl die Vertikalen Grenzen überschreitet, müssen wir einige Werte finden, unter anderem den Ersten Punkt. Betrachten wir zuerst \texttt{v\_x}. Wenn der Strahl nach rechts zeigt (\texttt{(a < 0.5 * pi) or (a > 1.5 * pi)}), ist \texttt{v\_x} der erste Punkt in der neuen Zelle ($TILE*\langle Spieler\_Zelle\rangle + TILE$). Sonst ist \texttt{v\_x} der ``letzte'' Punkt in der Zelle vor der, in der der Spieler steht, also $TILE*\langle Spieler\_Zelle\rangle - 1$. Um die Zelle des Spielers zu finden, teilt man ohne rest durch TILE; in python \texttt{p\_x // TILE}. Somit haben wir diesen code:
+Um herauszufinden, wo der Strahl die vertikalen Grenzen überschreitet, müssen wir einige Werte finden, unter anderem den ersten Punkt. Betrachten wir zuerst \texttt{v\_x}. Wenn der Strahl nach rechts zeigt (\texttt{(a < 0.5 * pi) or (a > 1.5 * pi)}), ist \texttt{v\_x} der erste Punkt in der neuen Zelle ($TILE*\langle Spieler\_Zelle\rangle + TILE$). Sonst ist \texttt{v\_x} der ``letzte'' Punkt in der Zelle vor der, in der der Spieler steht, also $TILE*\langle Spieler\_Zelle\rangle - 1$. Um die Zelle des Spielers zu finden, teilt man ohne Rest durch TILE; in Python \texttt{p\_x // TILE}. Somit haben wir diesen Code:
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 if (a < 0.5 * pi) or (a > 1.5 * pi):
 	v_x = (p_x // TILE)*TILE + TILE
@@ -239,8 +239,8 @@ else:
 
 Die Fälle $a = 0.5\pi$ und $a = 1.5\pi$ haben wir schon ausgeschlossen. Man könnte natürlich auch \texttt{((p\_x // TILE) + 1) * TILE} rechnen, aber ich glaube es macht keinen Unterschied.
 
-Schwieriger wird es, \texttt{v\_y} auszurechnen. Dazu werden wir $v\_y = p\_y + \Delta y$ rechnen, indem wir $\Delta y$ mit Tangens berechnen (Siehe Abb.~\ref{fig:vcheck1}). Da wir hier ein rechtwinkliges Dreieck haben, ist $\tan a = \frac{-\Delta y}{\Delta x}$, wobei zu beachten ist, dass $\Delta y$ negativ ist, weil der Winkel ``nach unten'' Zeigt.
-Erst bei einem negativen winkel (bzw. $a > \pi$) ist $\Delta y$ positiv.
+Schwieriger wird es, \texttt{v\_y} auszurechnen. Dazu werden wir $v\_y = p\_y + \Delta y$ rechnen, indem wir $\Delta y$ mit Tangens berechnen (Siehe Abb.~\ref{fig:vcheck1}). Da wir hier ein rechtwinkliges Dreieck haben, ist $\tan a = \frac{-\Delta y}{\Delta x}$, wobei zu beachten ist, dass $\Delta y$ negativ ist, weil der Winkel ``nach unten'' zeigt.
+Erst bei einem negativen Winkel (bzw. $a > \pi$) ist $\Delta y$ positiv.
 
 \begin{figure}[htbp] 
         \centering
@@ -298,9 +298,9 @@ else:
 Leser, die den Code gelesen haben, haben vielleicht gemerkt, dass bei \texttt{y\_i} und \texttt{v\_y} um den Ausdruck die \texttt{int()} Funktion benutzt wird. Die Koordinaten müssen noch immer \texttt{int}s bleiben, aber python konvertiert in einem Versuch, hilfreich zu sein, \texttt{int}s automatisch in \texttt{float}s.
 
 \paragraph{Die Schleife:}
-Jetzt, wo wir die nötigen Werte haben, können wir die Schleife beginnen, die durch die Punkte iteriert. In der Schleife prüfen wir einfach, ob der Punkt $(v\_x,v\_y)$ in einem ``vollen'' Feld oder nicht steht. Wie vorher geschrieben, ist dies Methode, um von Koordinaten zu \texttt{world}-Koordinaten zu kommen, einfach $\lfloor k \div TILE \rfloor$, in python \texttt{k // TILE}. \\
+Jetzt, wo wir die nötigen Werte haben, können wir die Schleife beginnen, die durch die Punkte iteriert. In der Schleife prüfen wir einfach, ob der Punkt $(v\_x,v\_y)$ in einem ``vollen'' Feld oder nicht steht. Wie vorher beschrieben, ist die Methode, um von Koordinaten zu \texttt{world}-Koordinaten zu kommen, einfach $\lfloor k \div TILE \rfloor$, in Python \texttt{k // TILE}. \\
 Die Überprüfung, ob Punkt V auf einem vollen Feld steht, ist also einfach \texttt{world[v\_x // TILE][v\_y // TILE]}: die Zellen sind sowieso 1 oder 0. Wenn das also 1 ist, wird \texttt{vvalid} also auf \texttt{True} gesetzt, und die Schleife verlassen. \\
-Weil es passieren kann, dass der erste Punkt V schon außerhalb des Spielfeldes ist, ist diese ganze Überprüfung in einem \texttt{try} gepackt. Wenn ein \texttt{IndexError} passiert, \texttt{break}ed es wieder die Schleife und geht weiter zu den horizontalen Überprüfungen. \\
+Weil es passieren kann, dass der erste Punkt V schon außerhalb des Spielfeldes ist, ist diese ganze Überprüfung in einem \texttt{try} gepackt. Wenn ein \texttt{IndexError} auftritt, \texttt{break}ed es wieder die Schleife und geht weiter zu den horizontalen Überprüfungen. \\
 Ansonsten werden zu \texttt{v\_x} und \texttt{v\_y} \texttt{x\_i} bzw. \texttt{y\_i} addiert, und die Schleife fortgesetzt, solang V noch ein gültiger Punkt ist. Der resultierende Code ist also:
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 # hl is the number of cells along the horizontal
@@ -324,10 +324,10 @@ Zuletzt wird noch die Distanz zwischen den Punkten P und V berechnet, mit dem Sa
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 vdist = math.sqrt((v_x-p_x)**2 + (v_y-p_y)**2)
 \end{Verbatim}
-Damit haben wir die Erste vertikale Grenze, die der Strahl schneidet.
+Damit haben wir die erste vertikale Grenze, die der Strahl schneidet.
 
 \subsubsection{Horizontale Schnitte}
-Für die horizontalen Schnittpunkte machen wir ungefähr das gleiche wie für vertikale, nur die Achsen sind vertauscht: \texttt{y\_i} ist hier +/- \texttt{TILE}, und \texttt{x\_i} muss mit Tangens berechnet werden. Das meiste kann aber leicht von dem vorigen übertragen werden. Zuletzt werden wir eine mögliche Distanz in \texttt{hdist} haben, wenn \texttt{havlid True} ist.
+Für die horizontalen Schnittpunkte machen wir ungefähr das Gleiche wie für vertikale, nur die Achsen sind vertauscht: \texttt{y\_i} ist hier +/- \texttt{TILE}, und \texttt{x\_i} muss mit Tangens berechnet werden. Das Meiste kann aber leicht von dem Vorigen übertragen werden. Zuletzt werden wir eine mögliche Distanz in \texttt{hdist} haben, wenn \texttt{havlid True} ist.
 
 \subsubsection{Vergleich und \texttt{return}}
 Jetzt haben wir also minimal 0 Distanzen, und maximal 2. Mit einer einfachen \texttt{if} / \texttt{elif} Kette können wir daraus die niedrigste Distanz finden: dann haben wir den ersten Punkt, an dem der Strahl auf etwas trifft. \\
@@ -356,7 +356,7 @@ Um die Struktur des Programms zusammenzufassen:
 \begin{framed}
 \begin{enumerate}
 	\item Diverse (globale) Variablen werden initialisiert
-	\item Die zentrale Schleife des Spiels wird begonnen. Diese schleife macht folgendes:
+	\item Die zentrale Schleife des Spiels wird begonnen. Diese Schleife macht folgendes:
 	\begin{itemize}
 		\item Benutzereingaben holen, \texttt{walk()} oder \texttt{quit()} aufrufen
 		\item Mit draw() rendern
@@ -366,7 +366,7 @@ Um die Struktur des Programms zusammenzufassen:
 \end{framed}
 \end{spacing}
 
-\texttt{draw()} Funktioniert so:
+\texttt{draw()} funktioniert so:
 \begin{spacing}{1.0}
 \begin{framed}
 \begin{enumerate}
@@ -419,9 +419,9 @@ Und schließlich \texttt{cast()} selber:
 \renewcommand{\clearpage}{}
 
 \mychapter{3}{Schlussteil}
-Jetzt habe ich hoffentlich verständlich erklärt, genau wie ein Raycaster funktioniert. Das Prinzip ist ziemlich einfach, und ein gut geschriebener Raycaster braucht wenig Rechenleistung, auch wenn das Spielfeld sehr limitiert wird.
+Jetzt habe ich hoffentlich verständlich erklärt, wie genau ein Raycaster funktioniert. Das Prinzip ist ziemlich einfach, und ein gut geschriebener Raycaster braucht wenig Rechenleistung, auch wenn das Spielfeld sehr limitiert wird.
 
-Die goldene Zeit des Raycaster war nicht sehr lang, aber produzierte hits wie Wolfenstein 3D. Noch dazu wird das grundlegende Prinzip, den weg eines Strahls zu verfolgen, noch immer in Raytracern benutzt.
+Die goldene Zeit des Raycaster war nicht sehr lang, aber produzierte Hits wie Wolfenstein 3D. Noch dazu wird das grundlegende Prinzip, den Weg eines Strahls zu verfolgen, noch immer in Raytracern benutzt.
 
 Ich habe endlich einen Raycaster fertiggeschrieben, und hoffentlich ein paar Menschen gezeigt, was ein Raycaster macht. Und Spaß gehabt mit \LaTeX. Jetzt noch ein paar Quellen:
 \endgroup

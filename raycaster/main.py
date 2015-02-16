@@ -47,7 +47,6 @@ world = [[0 for i in range(vl)] for j in range(hl)]
 p_x = 32 #player x,y
 p_y = 32
 p_a = 0 #pointing right
-p_height = TILE / 2
 
 # computed variables
 plane_d = (plane_x / 2) / math.tan(fov/2) #distance from player to plane

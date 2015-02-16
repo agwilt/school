@@ -119,9 +119,17 @@ Hier noch mal eine Liste der wichtigen Variablen (mit Datentyp):
 
 
 \subsection{Was macht ein Raycaster, genauer?}
-Here goes stuff explaining what things the RC needs to do in a program, as opposed to things like adding sprites, etc.
+Wenn man die Punkte in Abb~\ref{fig:grid} noch einmal betrachtet, fällt auf, dass eine Hälfte auf den vertikalen, und die andere auf den horizontalen ist. Es macht Sinn, beide separat zu überprüfen, weil man dann mit einem konstanten Wert inkrementieren kann.
+
+Betrachten wir die vertikalen Schnittstellen: alle sind auf der x-Achse eine Feldlänge (\texttt{TILE}) entfernt. Auch auf der y-Achse sind sie in einem konstanten Intervall voneinander entfernt. Für die horizontalen ist es gleich, nur x und y sind vertauscht. Zurück zu den vertikalen Schnittstellen.
+
+Wenn wir den ersten Punkt gefunden haben, wo der Strahl eine vertikale Grenze des Gitters überschreitet, prüfen wir nach, ob dieser Punkt in \texttt{world}-Koordinaten gefüllt (1) oder nicht (0) ist. Wenn nicht, erweitern wir den Strahl, indem wir zu unserem ersten Punkt die Intervalle \texttt{x\_i} und \texttt{y\_i} addieren. Das wird wiederholt, bis der Strahl auf etwas trifft (also in einem \texttt{1} Feld steht).
+
+Das gleiche wird dann noch mal mit den horizontalen Schnittstellen gemacht, bis man zwei Punkte oder Distanzen (zu den Punkten) hat. Dann kann die kürzere Distanz zurückgegeben werden, und für das rendern oder gehen benutzt werden.
 
 \section{Schritt für Schritt Erklärung}
+
+.. oder ``Was macht ein Raycaster, noch viel genauer?''. Hier wird die Vorgehensweise und der Code Schritt für Schritt erklärt, beginnend bei der Initialisierung diverser Variablen.
 
 \subsection{Initialisierung}
 

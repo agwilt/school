@@ -249,7 +249,7 @@ Erst bei einem negativen winkel (bzw. $a > \pi$) ist $\Delta y$ positiv.
         \label{fig:vcheck1}
 \end{figure}
 
-$\Delta x$ ist ziemlich leicht zu berechnen: einfach $v\_x - p\_x$. Somit haben wir $$\tan a = \frac{-\Delta y}{v\_x - p\_x}$$ oder $$\Delta y = -\tan a \cdot (v\_x - p\_x)$$. Also ist $v\_y = p\_y - \tan a \cdot (v\_x - p\_x)$. Nur in dem Spezialfall $a = \pi$ oder $a = 0$ ist $v\_y = p\_y$, da der Strahl sich nicht auf der y-Achse bewegt. Unser Code ist also:
+$\Delta x$ ist ziemlich leicht zu berechnen: einfach $v\_x - p\_x$. Somit haben wir \[\tan a = \frac{-\Delta y}{v\_x - p\_x}\] oder \[\Delta y = -\tan a \cdot (v\_x - p\_x)\]. Also ist $v\_y = p\_y - \tan a \cdot (v\_x - p\_x)$. Nur in dem Spezialfall $a = \pi$ oder $a = 0$ ist $v\_y = p\_y$, da der Strahl sich nicht auf der y-Achse bewegt. Unser Code ist also:
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 if a == 0 or a == pi:
 	v_y = p_y
@@ -273,7 +273,7 @@ else:
         \includegraphics[width=8cm]{vcheck2.png} 
         \caption{x\_i und y\_i}
 \end{figure}
-Danach kommt y\_i, wozu wir wieder den Tangens brauchen. Dieses Mal ist es aber ein bisschen einfacher: Wieder haben wir $$\tan a = \frac{-y\_i}{x\_i}$$aber dieses mal Kennen wir schon \texttt{x\_i}, also formen wir einfach um zu $$y\_i = -\tan a \cdot x\_i$$
+Danach kommt y\_i, wozu wir wieder den Tangens brauchen. Dieses Mal ist es aber ein bisschen einfacher: Wieder haben wir \[\tan a = \frac{-y\_i}{x\_i}\]aber dieses mal Kennen wir schon \texttt{x\_i}, also formen wir einfach um zu \[y\_i = -\tan a \cdot x\_i\]
 Auch hier ist $y\_i = 0$, wenn der Strahl horizontal ist. Eigentlich müssen wir nicht einen zusätzlichen \texttt{if}-Block dafür haben, denn $\tan 0 = 0$ und $\tan \pi = 0$, aber es hilft, darüber bewusst zu sein. Jetzt ist unser ganzer Code, um diese Werte zu bestimmen, wie folgt:
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 # Get x_i (+TILE if pointing right, -TILE if left).

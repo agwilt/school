@@ -163,7 +163,7 @@ def cast(world, p_x, p_y, a):
 			h_x = p_x
 		else:
 			x_i = int(-1 * y_i / math.tan(a))
-			h_x = p_x # more magic. can't think now. do later
+			h_x = p_x # TODO: write this bit
 
 		for i in range(vl):
 			try:

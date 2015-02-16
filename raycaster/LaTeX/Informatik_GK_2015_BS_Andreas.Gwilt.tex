@@ -66,7 +66,7 @@ Für jede Spalte des Fensters/Bildschirms wirft er einen Strahl (also z.B. 1920 
 \end{figure}
 
 Leider ist es aber sehr langsam, für jeden Pixel des Strahls zu sehen, ob er in einem Objekt oder nicht ist. Deshalb sehen wir das Spielfeld als Gitter (Siehe Abb.~\ref{fig:grid}), und müssen so an viel weniger Stellen prüfen. In dem Gitter ist der Spieler P in dem Feld (0,3). Der Strahl (der von P kommt und den Winkel $\alpha$ hat) muss jetzt nur an dem ersten Punkten in (1,3), (1,2), (2,2) und (2,1) geprüft werden.
-\begin{figure}[htbp] 
+\begin{figure}[htbp]
         \centering
         \includegraphics[width=8cm]{grid.png} 
         \caption{An den roten Punkten geht der Strahl in ein neues Feld}
@@ -76,9 +76,49 @@ Leider ist es aber sehr langsam, für jeden Pixel des Strahls zu sehen, ob er in
 Bevor wir weiter gehen, ist es wichtig zu wissen, welche Variablen existieren, und wie sie hier heißen.
 
 \subsection{Daten}
-Better data para
+\subsubsection{Koordinaten}
+Weil wir das Spielfeld jetzt als Gitter sehen, haben wir auch zwei verschiedene Typen von Koordinaten: "normale" Koordinaten, z.B. wo der Spieler steht, und \texttt{world}- oder Gitterkoordinaten, die gröberen Koordinaten des Spielfeldes.
 
-\subsection{Was ist die Aufgabe des Raycasters?}
+Das Spielfeld ist nämlich ein zweidimensionales Array, das 1 (für eine Wand) oder 0 (für leeren Raum) enthält. Dieses Modell ist natürlich erweiterbar: Man könnte auch Zahlencodes für Texturen oder einfach Farben in der Array haben. Als Beispiel eine Array, die das Spielfeld in Abb.~\ref{fig:grid} speichert:
+\begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
+world = [[1,1,0,0],
+         [1,0,0,0],
+         [1,1,1,0]]
+\end{Verbatim}
+Um z.B. Feld (0,1) zu finden, sehen wir einfach in \texttt{world[0][1]} nach. Für die Breite und Höhe des Spielfeldes sind \texttt{hl} (Horizontale Länge) und \texttt{vl} zuständig. 
+\paragraph*{}
+Für den Spieler, den Strahl, und eventuellen Gegnern wollen wir aber genauere Koordinaten haben. Dazu müssen wir wir definieren, wie lang ein \texttt{world}-Feld in den genauen Koordinaten ist. Die größe nenne ich \texttt{TILE} (in diesem Fall auf 32 gesetzt).
+
+Der Spieler hat die genauen Koordinaten \texttt{p\_x} und \texttt{p\_y}, und den Winkel \texttt{p\_a}. Um die \texttt{world}-Koordinaten des Spielers zu finden, teilen wir ohne rest durch die Länge eines Feldes, z.B. \texttt{world[p\_x // TILE][p\_y // 64]}. Das bringt uns zu noch einem Wichtigem Punkt:
+
+\subsubsection{Winkel}
+Alle Winkel in meinem Program sind im Bogenmaß, und zeigen "nach unten" von der Horizontalen (Abb.~\ref{fig:angles}). Auch gehen alle Funktionen davon aus, dass ein Winkel immer positiv und immer unter $2\pi$ bleibt.
+\begin{figure}[htbp] 
+        \centering
+        \includegraphics[width=4cm]{angles.png} 
+        \label{fig:angles}
+\end{figure}
+
+\subsubsection{Liste}
+Hier noch mal eine Liste der wichtigen Variablen (mit Datentyp):
+\begin{center}
+	\begin{tabular}{|l|c|r|}
+		\hline
+		Variable & Datentyp & Beschreibung \\ \hline
+		\hline
+		\texttt{world} & 2-dim. Array & Das Spielfeld \\ \hline
+		\texttt{TILE} & \texttt{int} & Größe des \texttt{world}-Gitters \\ \hline
+		\texttt{p\_x} & \texttt{int} & X-Koordinate des Spielers \\ \hline
+		\texttt{p\_y} & \texttt{int} & Y-Koordinate des Spielers \\ \hline
+		\texttt{p\_a} & \texttt{float} & Winkel des Spielers \\ \hline
+		P & - & Punkt, an dem der Spieler steht (nur im Text) \\ \hline
+		V & - & Punkt, an dem der Strahl eine Vertikale schneidet \\ \hline
+		H & - & ditto, für die Horizontale \\ \hline
+	\end{tabular}
+\end{center}
+
+
+\subsection{Was macht ein Raycaster, genauer?}
 Here goes stuff explaining what things the RC needs to do in a program, as opposed to things like adding sprites, etc.
 
 \section{Schritt für Schritt Erklärung}

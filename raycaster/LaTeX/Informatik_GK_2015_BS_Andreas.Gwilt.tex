@@ -21,15 +21,26 @@
 \title{Funktionsweise eines Raycasters mithilfe eines selber geschriebenen Beispiels erkl\"art}
 \author{Andreas Gwilt}
 
+\newcommand{\mychapter}[2]{
+    \setcounter{chapter}{#1}
+    \setcounter{section}{0}
+    \chapter*{#2}
+    \addcontentsline{toc}{chapter}{#2}
+}
+
 \begin{document}
 
 \maketitle
 \tableofcontents
 
-\chapter{Was ist ein Raycaster?}
-% say roughly what it is, and what i'm trying to do in the FA
-Raycasting ist ein ziemlich weiter Begriff, der meistens für eine Rendermethode benutzt wird. Allgemein ist es eine Technik, um zu sehen, ob ein Strahl eine Fläche schneidet. Man ``wirft'' einen Strahl, und überprüft, ob er eine Ebene schneidet oder nicht. Diese ist dem Raytracing sehr ähnlich, aber ist viel limitierter und auch schneller.
-Ich habe, um den Raycaster zu erklären, eine in der ersten Person gerenderten Version von Conways \textit{Spiel des Lebens} geschrieben. 
+\mychapter{1}{Einleitung}
+
+\section{Was ist ein Raycaster?}
+Ein Raycaster ist eine Rendermethode, die eine pseudo-3D Welt basierend auf einem 2D Spielfeld rendert\cite{scratch}. 
+
+Raycasting ist eigentlich ein ziemlich weiter Begriff, der meistens für die Rendermethode benutzt wird. Allgemein ist es aber eine Technik, um zu sehen, ob ein Strahl einen Körper schneidet. Man ``wirft'' einen Strahl, und überprüft, ob er eine Ebene schneidet oder nicht. Diese ist dem Raytracing sehr ähnlich, aber ist viel limitierter und auch schneller. Im gegensatz zu Raycasting (was für jeden Pixel oder jede Spalte von Pixeln des Bildschirms einen Strahl wirft) simuliert Raytracing annähernd die Photonen, die von Lichtquellen auf Ebenen reflektieren und eventuell das Auge erreichen.
+
+Ich habe, um den Raycaster zu erklären, eine in der ersten Person gerenderten Version von Conways \textit{Spiel des Lebens}\cite{life} geschrieben, die einen Raycaster zum rendern benutzt. In dieser Facharbeit werde ich die Funktionsweise des Raycasters erklären.
 
 \begin{figure}[htbp] 
         \centering
@@ -49,7 +60,8 @@ Eines der ersten Spiele, die das Prinzip implementierten, war \textit{Hovertank 
 \paragraph*{}
 Zufrieden mit den zwei ``Prototypen'' entwickelten id Software ihr neues Spiel \textit{Wolfenstein 3D}, das die Technologie von \textit{Catacomb 3-D} übernahm. \textit{Wolfenstein 3D}, was 1992 von Apogee Software veröffentlicht wurde, war ein großer Erfolg und machte Ego-Shooter, und damit den Raycaster, bekannt. Danach schaffte id Software das revolutionäre Spiel \textit{DOOM}. \textit{DOOM} war ein noch viel größerer Erfolg, der eine sehr verbesserten Spiel-Engine hatte. Die neue Engine war jedoch nicht mehr wirklich ein echter Raycaster, sondern benutzte Binary Space Partitioning und andere fortgeschrittene Methoden. Heutzutage findet der Raycaster nicht mehr viel Verwendung als Renderer, aber das Prinzip wird mit dem Raytracer fortgeführt. Der Raytracer arbeitet immer in drei Dimensionen, und ist rekursiv, d.h. er simuliert den kompletten Gang eines Lichtstrahles, inklusiv Reflexionen. Raytracing ist aber noch immer zu langsam für Echtzeit Darstellung, und findet eher als Renderer von stillen Bildern Gebrauch.
 
-\chapter{Wie funktioniert ein Raycaster?}
+
+\mychapter{2}{Wie funktioniert ein Raycaster?}
 \section{Allgemein}
 
 \subsection{Was macht ein Raycaster}
@@ -59,7 +71,7 @@ Für jede Spalte des Fensters/Bildschirms wirft er einen Strahl (also z.B. 1920 
 \begin{figure}[htbp] 
         \centering
         \includegraphics[width=8cm]{raycasting.png} 
-        \caption{Bild von http://www.fabiensanglard.net/wolf3d/index.php}
+        \caption{Bild von \url{http://www.fabiensanglard.net/wolf3d/index.php}}
         \label{fig:rcaster}
 \end{figure}
 
@@ -324,7 +336,7 @@ else: # no collision
         return -1
 \end{Verbatim}
 
-\subsection{Zusammenfassung}
+\subsection{Zusammenfassung/Überblick}
 
 Um die Struktur des Programms zusammenzufassen:
 \begin{spacing}{1.0}
@@ -389,8 +401,56 @@ Und schließlich \texttt{cast()} selber:
 \end{framed}
 \end{spacing}
 
+\begingroup
+\renewcommand{\cleardoublepage}{}
+\renewcommand{\clearpage}{}
 
-\chapter{Zusammenfassung}
-One or two paragraphs of TL;DR.
+\mychapter{3}{Schlussteil}
+Jetzt habe ich hoffentlich verständlich erklärt, genau wie ein Raycaster funktioniert. Das Prinzip ist ziemlich einfach, und ein gut geschriebener Raycaster braucht wenig Rechenleistung, auch wenn das Spielfeld sehr limitiert wird.
+
+Die goldene Zeit des Raycaster war nicht sehr lang, aber produzierte hits wie Wolfenstein 3D. Noch dazu wird das grundliegende Prinzip, den weg eines Strahls zu verfolgen, noch immer in Raytracern benutzt.
+
+Ich habe endlich einen Raycaster fertiggeschrieben, und hoffentlich ein paar Menschen gezeigt, was ein Raycaster macht. Und Spaß gehabt mit \LaTeX. Jetzt noch ein paar Quellen:
+\endgroup
+
+\begin{thebibliography}{9}
+
+\bibitem{wolf3d}
+  Fabien Sanglard,
+  \emph{Wolfenstein 3D For iPhone}.
+  \url{http://www.fabiensanglard.net/wolf3d/index.php},
+  April 2009.
+
+\bibitem{permadi}
+  F. Permadi,
+  \emph{Ray-Casting Tutorial For Game Development And Other Purposes}.
+  \url{http://www.permadi.com/tutorial/raycast/},
+  1996.
+
+\bibitem{enwiki}
+  Wikipedia,
+  \emph{Ray casting}.
+  \url{https://en.wikipedia.org/w/index.php?title=Ray_casting&oldid=639531500},
+  Dezember 2014
+
+\bibitem{dewiki}
+  Wikipedia,
+  \emph{Raycasting}.
+  \url{https://de.wikipedia.org/w/index.php?title=Raycasting&oldid=137530408},
+  Januar 2015
+
+\bibitem{scratch}
+  Scratch Wiki,
+  \emph{Raycaster}.
+  \url{http://wiki.scratch.mit.edu/w/index.php?title=Raycaster&oldid=105373},
+  September 2014
+  
+\bibitem{life}
+  Martin Gardner,
+  \emph{ Mathematical Games – The fantastic combinations of John Conway's new solitaire game ``life''}.
+  Scientific American 223 (link \url{http://ddi.cs.uni-potsdam.de/HyFISCH/Produzieren/lis_projekt/proj_gamelife/ConwayScientificAmerican.htm}),
+  Oktober 1970
+
+\end{thebibliography}
 
 \end{document}

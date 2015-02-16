@@ -20,8 +20,7 @@
 
 \title{{Funktionsweise eines Raycasters mithilfe eines selber geschriebenen Beispiels erkl\"art \vspace{1cm}} \\
         {\large Informatik GK1, Herr Berger} \\
-        {\includegraphics[width=10cm]{sge.jpg}}
-        }
+        {\includegraphics[width=10cm]{sge.jpg}}}
 \author{Andreas Gwilt}
 
 \newcommand{\mychapter}[2]{
@@ -40,9 +39,9 @@
 \mychapter{1}{Einleitung}
 
 \section{Was ist ein Raycaster?}
-Ein Raycaster ist eine Rendermethode, die eine pseudo-3D Welt basierend auf einem 2D Spielfeld rendert\cite{scratch}. 
+Ein Raycaster ist eine Rendermethode, die eine pseudo-3D Welt basierend auf einem 2D Spielfeld rendert\cite{scratch}.
 
-Raycasting ist eigentlich ein ziemlich weiter Begriff, der meistens für die Rendermethode benutzt wird. Allgemein ist es aber eine Technik, um zu sehen, ob ein Strahl einen Körper schneidet. Man ``wirft'' einen Strahl, und überprüft, ob er eine Ebene schneidet oder nicht. Diese ist dem Raytracing sehr ähnlich, aber ist viel limitierter und auch schneller. Im gegensatz zu Raycasting (was für jeden Pixel oder jede Spalte von Pixeln des Bildschirms einen Strahl wirft) simuliert Raytracing annähernd die Photonen, die von Lichtquellen auf Ebenen reflektieren und eventuell das Auge erreichen.
+Raycasting ist eigentlich ein ziemlich weiter Begriff, der meistens für die Rendermethode benutzt wird. Allgemein ist es aber eine Technik, um zu sehen, ob ein Strahl einen Körper schneidet. Man ``wirft'' einen Strahl, und überprüft, ob er eine Ebene schneidet oder nicht. Diese ist dem Raytracing sehr ähnlich, aber ist viel limitierter und auch schneller. Im Gegensatz zu Raycasting (was für jeden Pixel oder jede Spalte von Pixeln des Bildschirms einen Strahl wirft) simuliert Raytracing annähernd die Photonen, die von Lichtquellen auf Ebenen reflektieren und eventuell das Auge erreichen.
 
 Ich habe, um den Raycaster zu erklären, eine in der ersten Person gerenderten Version von Conways \textit{Spiel des Lebens}\cite{life} geschrieben, die einen Raycaster zum rendern benutzt. In dieser Facharbeit werde ich die Funktionsweise des Raycasters erklären.
 
@@ -81,7 +80,7 @@ Heutzutage findet der Raycaster nicht mehr viel Verwendung als Renderer, aber da
 \subsection{Was macht ein Raycaster}
 Allgemein gesehen muss ein Raycaster den ersten Schnittpunkt zwischen einem Strahl (theoretisch eine Halbgerade) und einem Körper finden. Wir stellen uns vor, dass ein Strahl von einem Punkt (das Auge des Spieler) aus in einer bestimmten Richtung verläuft. Wir führen diesen Strahl immer weiter, bis er auf etwas trifft. Dann berechnen wir die Länge des Strahls, und wissen wie weit weg das Objekt ist. Man kann das in beliebig vielen Dimensionen machen, aber der Raycaster ist zweidimensional.
 
-Für jede Spalte des Fensters/Bildschirms wirft er einen Strahl (also z.B. 1920 Strahlen bei einer FHD auflösung), und sieht wie weit weg er auf etwas stößt. Entsprechend wird dann eine vertikale Linie auf dem Bildschirm gemalt. Abb~\ref{fig:rcaster} zeigt ein Diagramm dazu.
+Für jede Spalte des Fensters/Bildschirms wirft er einen Strahl (also z.B. 1920 Strahlen bei einer FHD Auflösung), und sieht wie weit weg er auf etwas stößt. Entsprechend wird dann eine vertikale Linie auf dem Bildschirm gemalt. Abb~\ref{fig:rcaster} zeigt ein Diagramm dazu.
 \begin{figure}[htbp] 
         \centering
         \includegraphics[width=8cm]{raycasting.png} 
@@ -111,7 +110,7 @@ world = [[1,1,0,0],
 \end{Verbatim}
 Um z.B. Feld (0,1) zu finden, sehen wir einfach in \texttt{world[0][1]} nach. Für die Breite und Höhe des Spielfeldes sind \texttt{hl} (Horizontale Länge) und \texttt{vl} zuständig. 
 \paragraph*{}
-Für den Spieler, den Strahl, und eventuellen Gegnern wollen wir aber genauere Koordinaten haben. Dazu müssen wir wir definieren, wie lang ein \texttt{world}-Feld in den genauen Koordinaten ist. Die größe nenne ich \texttt{TILE} (in diesem Fall auf 32 gesetzt).
+Für den Spieler, den Strahl, und eventuellen Gegnern wollen wir aber genauere Koordinaten haben. Dazu müssen wir wir definieren, wie lang ein \texttt{world}-Feld in den genauen Koordinaten ist. Die Größe nenne ich \texttt{TILE} (in diesem Fall auf 32 gesetzt).
 
 Der Spieler hat die genauen Koordinaten \texttt{p\_x} und \texttt{p\_y}, und den Winkel \texttt{p\_a}. Um die \texttt{world}-Koordinaten des Spielers zu finden, teilen wir ohne rest durch die Länge eines Feldes, z.B. \texttt{world[p\_x // TILE][p\_y // 64]}. Das bringt uns zu noch einem Wichtigem Punkt:
 
@@ -299,7 +298,7 @@ else:
 Leser, die den Code gelesen haben, haben vielleicht gemerkt, dass bei \texttt{y\_i} und \texttt{v\_y} um den Ausdruck die \texttt{int()} Funktion benutzt wird. Die Koordinaten müssen noch immer \texttt{int}s bleiben, aber python konvertiert in einem Versuch, hilfreich zu sein, \texttt{int}s automatisch in \texttt{float}s.
 
 \paragraph{Die Schleife:}
-Jetzt, wo wir die nötigen Werte haben, können wir die Schleife beginnen, die durch die Punkte iteriert. In der Schleife prüfen wir einfach, ob der punkt $(v\_x,v\_y)$ in einem ``vollen'' Feld oder nicht steht. Wie vorher geschrieben, ist dies Methode, um von Koordinaten zu \texttt{world}-Koordinaten zu kommen, einfach $\lfloor k \div TILE \rfloor$, in python \texttt{k // TILE}. \\
+Jetzt, wo wir die nötigen Werte haben, können wir die Schleife beginnen, die durch die Punkte iteriert. In der Schleife prüfen wir einfach, ob der Punkt $(v\_x,v\_y)$ in einem ``vollen'' Feld oder nicht steht. Wie vorher geschrieben, ist dies Methode, um von Koordinaten zu \texttt{world}-Koordinaten zu kommen, einfach $\lfloor k \div TILE \rfloor$, in python \texttt{k // TILE}. \\
 Die Überprüfung, ob Punkt V auf einem vollen Feld steht, ist also einfach \texttt{world[v\_x // TILE][v\_y // TILE]}: die Zellen sind sowieso 1 oder 0. Wenn das also 1 ist, wird \texttt{vvalid} also auf \texttt{True} gesetzt, und die Schleife verlassen. \\
 Weil es passieren kann, dass der erste Punkt V schon außerhalb des Spielfeldes ist, ist diese ganze Überprüfung in einem \texttt{try} gepackt. Wenn ein \texttt{IndexError} passiert, \texttt{break}ed es wieder die Schleife und geht weiter zu den horizontalen Überprüfungen. \\
 Ansonsten werden zu \texttt{v\_x} und \texttt{v\_y} \texttt{x\_i} bzw. \texttt{y\_i} addiert, und die Schleife fortgesetzt, solang V noch ein gültiger Punkt ist. Der resultierende Code ist also:
@@ -422,7 +421,7 @@ Und schließlich \texttt{cast()} selber:
 \mychapter{3}{Schlussteil}
 Jetzt habe ich hoffentlich verständlich erklärt, genau wie ein Raycaster funktioniert. Das Prinzip ist ziemlich einfach, und ein gut geschriebener Raycaster braucht wenig Rechenleistung, auch wenn das Spielfeld sehr limitiert wird.
 
-Die goldene Zeit des Raycaster war nicht sehr lang, aber produzierte hits wie Wolfenstein 3D. Noch dazu wird das grundliegende Prinzip, den weg eines Strahls zu verfolgen, noch immer in Raytracern benutzt.
+Die goldene Zeit des Raycaster war nicht sehr lang, aber produzierte hits wie Wolfenstein 3D. Noch dazu wird das grundlegende Prinzip, den weg eines Strahls zu verfolgen, noch immer in Raytracern benutzt.
 
 Ich habe endlich einen Raycaster fertiggeschrieben, und hoffentlich ein paar Menschen gezeigt, was ein Raycaster macht. Und Spaß gehabt mit \LaTeX. Jetzt noch ein paar Quellen:
 \endgroup

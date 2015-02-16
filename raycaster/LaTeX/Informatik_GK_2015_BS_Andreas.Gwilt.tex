@@ -55,8 +55,6 @@ Ich habe, um den Raycaster zu erklären, eine in der ersten Person gerenderten V
 \section{Welche Probleme löst ein Raycaster?}
 Raycasting ist eine Methode, um zu überprüfen, ob ein Strahl eine Fläche schneidet oder nicht. Die häufigste Anwendung dafür ist als einfaches Renderverfahren, um ein Spielfeld in Pseudo-3D darzustellen. Es gibt aber auch mehrere andere Anwendungen, z.B. Kollisionserkennung oder um fest zu stellen, ob etwas von einem Punkt aus sichtbar ist oder nicht.
 
-In meinem Beispiel nutze ich die Methode (in der \texttt{cast()} Funktion) hauptsächlich dazu, das Spielfeld darzustellen, aber auch als Kollisionserkennung für die \texttt{walk()} Funktion. Ich werde mich jedoch auf den Raycaster als Rendermethode konzentrieren. Raycasting wird auch meistens in Spielen benutzt, wo schnelles Rendern wichtig ist; es ist als realistische Rendermethode nicht geeignet.
-
 \paragraph*{}
 In den frühen 1990ern, als Raycasting beliebt wurde, hatte man noch ziemlich wenig Rechenleistung, wollte aber ``3D'' Spiele schreiben. Eine wirklich dreidimensionales Spiel-Engine (wie die 1996 erschienene Quake Engine) war noch nicht schnell genug, um in einem Spiel benutzt zu werden, also verwendete man Methoden wie Raycasting, um die Illusion von 3D herzustellen. Das vielleicht berühmteste Spiel, was Raycasting benutzte, war Wolfenstein 3D (Auch der erste beliebte Ego-Shooter). Wolfenstein 3D hatte ein zweidimensionales Spielfeld, was in 3D dargestellt wurde.
 
@@ -64,12 +62,11 @@ Raycasting musste jedoch sehr viele Kompromisse eingehen, um so schnell zu sein.
 
 \section{Die Geschichte des Raycasters}
 Raycasting wurde schon diskutiert, lange bevor PCs leistungsstark genug waren, um es wirklich in Spielen zu benutzen. Eine 1982 veröffentlichte Abhandlung von Scott Roth beschreibt Raycasting als Methode, dreidimensionale Körper zu rendern.
-\paragraph*{}
-Eines der ersten Spiele, die das Prinzip implementierten, war \textit{Hovertank 3D}, was in April 1991 von id Software in einem Magazin veröffentlicht wurde. \textit{Hovertank 3D} war noch sehr primitiv und hatte noch keine Texturen auf den Wänden, noch dazu wurde es nicht für eine große Zielgruppe veröffentlicht, aber es war der Anfang eines neuen Genre von Spielen. Im darauffolgenden November erschien \textit{Catacomb 3-D}, was Texturen hatte, und oft als der erste Ego-Shooter gesehen wird.
-\paragraph*{}
-Zufrieden mit den zwei ``Prototypen'' entwickelten id Software ihr neues Spiel \textit{Wolfenstein 3D}, das die Technologie von \textit{Catacomb 3-D} übernahm. \textit{Wolfenstein 3D}, was 1992 von Apogee Software veröffentlicht wurde, war ein großer Erfolg und machte Ego-Shooter, und damit den Raycaster, bekannt und beliebt. Wolfenstein 3D war, wie der name sagt, 3D, und hatte für die Zeit bahnbrechende Graphik, aber lief auf Heim-PCs.
 
-Danach schaffte id Software das revolutionäre Spiel \textit{DOOM}. \textit{DOOM} war ein noch viel größerer Erfolg, der eine sehr verbesserten Spiel-Engine hatte. Die neue Engine war jedoch nicht mehr wirklich ein echter Raycaster, sondern benutzte Binary Space Partitioning und andere fortgeschrittene Methoden.
+Eines der ersten Spiele, die das Prinzip implementierten, war \textit{Hovertank 3D}, was in April 1991 von id Software veröffentlicht wurde. \textit{Hovertank 3D} war noch sehr primitiv und hatte noch keine Texturen auf den Wänden, aber es war der Anfang eines neuen Genre von Spielen. Im darauffolgenden November erschien \textit{Catacomb 3-D}, was Texturen hatte, und oft als der erste Ego-Shooter gesehen wird.
+
+Zufrieden mit den zwei ``Prototypen'' entwickelten id Software ein neues Spiel:\\
+\textit{Wolfenstein 3D}, was 1992 veröffentlicht wurde, war ein großer Erfolg und machte Ego-Shooter, und damit den Raycaster, bekannt.
 
 Heutzutage findet der Raycaster nicht mehr viel Verwendung als Renderer, aber das Prinzip wird mit dem Raytracer fortgeführt. Der Raytracer arbeitet immer in drei Dimensionen, und ist rekursiv, d.h. er simuliert den kompletten Gang eines Lichtstrahles, inklusiv Reflexionen. Raytracing ist aber noch immer zu langsam für Echtzeit Darstellung, und findet eher als Renderer von stillen Bildern Gebrauch.
 
@@ -164,8 +161,6 @@ pi = math.pi
 plane_x = 1280 # Bildschirm/Fenster Auflösung
 plane_y = 720
 fov = math.radians(60) # Sichtfeld
-step = 20 # Länge eines Schrittes (für walk())
-turn = math.radians(5) # Wie weit der Spieler sich dreht
 \end{Verbatim}
 
 Jetzt kommen einige Variablen für das Spielfeld und den Spieler, die zum Teil geändert werden können (z.B. Spielerposition):
@@ -176,7 +171,6 @@ world = [[0 for i in range(vl)] for j in range(hl)] # Welt array
 p_x = 32 # Spieler x,y
 p_y = 32
 p_a = 0 # Spieler Winkel (zeigt am Moment nach "rechts"
-p_height = TILE / 2 # Spieler höhe
 
 plane_d = (plane_x / 2) / math.tan(fov/2) # distance to plane
 ray_angle = fov / plane_x # angle between rays
@@ -349,8 +343,60 @@ else: # no collision
         return -1
 \end{Verbatim}
 
-\subsection{Zusammenfassung/Überblick}
+\begingroup
+\renewcommand{\cleardoublepage}{}
+\renewcommand{\clearpage}{}
 
+\mychapter{3}{Schlussteil}
+Jetzt habe ich hoffentlich verständlich erklärt, genau wie ein Raycaster funktioniert. Das Prinzip ist ziemlich einfach, und ein gut geschriebener Raycaster braucht wenig Rechenleistung, auch wenn das Spielfeld sehr limitiert wird.
+
+Die goldene Zeit des Raycaster war nicht sehr lang, aber produzierte hits wie Wolfenstein 3D. Noch dazu wird das grundlegende Prinzip, den weg eines Strahls zu verfolgen, noch immer in Raytracern benutzt.
+
+Ich habe endlich einen Raycaster fertiggeschrieben, und hoffentlich ein paar Menschen gezeigt, was ein Raycaster macht. Und Spaß gehabt mit \LaTeX. Jetzt noch ein paar Quellen:
+\endgroup
+
+\begin{thebibliography}{9}
+
+\bibitem{wolf3d}
+  Fabien Sanglard,
+  \emph{Wolfenstein 3D For iPhone}.
+  \url{http://www.fabiensanglard.net/wolf3d/index.php},
+  April 2009.
+
+\bibitem{permadi}
+  F. Permadi,
+  \emph{Ray-Casting Tutorial For Game Development And Other Purposes}.
+  \url{http://www.permadi.com/tutorial/raycast/},
+  1996.
+
+\bibitem{enwiki}
+  Wikipedia,
+  \emph{Ray casting}.
+  \url{https://en.wikipedia.org/w/index.php?title=Ray_casting&oldid=639531500},
+  Dezember 2014
+
+\bibitem{dewiki}
+  Wikipedia,
+  \emph{Raycasting}.
+  \url{https://de.wikipedia.org/w/index.php?title=Raycasting&oldid=137530408},
+  Januar 2015
+
+\bibitem{scratch}
+  Scratch Wiki,
+  \emph{Raycaster}.
+  \url{http://wiki.scratch.mit.edu/w/index.php?title=Raycaster&oldid=105373},
+  September 2014
+  
+\bibitem{life}
+  Martin Gardner,
+  \emph{ Mathematical Games – The fantastic combinations of John Conway's new solitaire game ``life''}.
+  Scientific American 223 (link \url{http://ddi.cs.uni-potsdam.de/HyFISCH/Produzieren/lis_projekt/proj_gamelife/ConwayScientificAmerican.htm}),
+  Oktober 1970
+
+\end{thebibliography}
+
+\appendix
+\chapter*{Anhang 1: Struktur von \texttt{main.py}}
 Um die Struktur des Programms zusammenzufassen:
 \begin{spacing}{1.0}
 \begin{framed}
@@ -414,56 +460,5 @@ Und schließlich \texttt{cast()} selber:
 \end{framed}
 \end{spacing}
 
-\begingroup
-\renewcommand{\cleardoublepage}{}
-\renewcommand{\clearpage}{}
-
-\mychapter{3}{Schlussteil}
-Jetzt habe ich hoffentlich verständlich erklärt, genau wie ein Raycaster funktioniert. Das Prinzip ist ziemlich einfach, und ein gut geschriebener Raycaster braucht wenig Rechenleistung, auch wenn das Spielfeld sehr limitiert wird.
-
-Die goldene Zeit des Raycaster war nicht sehr lang, aber produzierte hits wie Wolfenstein 3D. Noch dazu wird das grundlegende Prinzip, den weg eines Strahls zu verfolgen, noch immer in Raytracern benutzt.
-
-Ich habe endlich einen Raycaster fertiggeschrieben, und hoffentlich ein paar Menschen gezeigt, was ein Raycaster macht. Und Spaß gehabt mit \LaTeX. Jetzt noch ein paar Quellen:
-\endgroup
-
-\begin{thebibliography}{9}
-
-\bibitem{wolf3d}
-  Fabien Sanglard,
-  \emph{Wolfenstein 3D For iPhone}.
-  \url{http://www.fabiensanglard.net/wolf3d/index.php},
-  April 2009.
-
-\bibitem{permadi}
-  F. Permadi,
-  \emph{Ray-Casting Tutorial For Game Development And Other Purposes}.
-  \url{http://www.permadi.com/tutorial/raycast/},
-  1996.
-
-\bibitem{enwiki}
-  Wikipedia,
-  \emph{Ray casting}.
-  \url{https://en.wikipedia.org/w/index.php?title=Ray_casting&oldid=639531500},
-  Dezember 2014
-
-\bibitem{dewiki}
-  Wikipedia,
-  \emph{Raycasting}.
-  \url{https://de.wikipedia.org/w/index.php?title=Raycasting&oldid=137530408},
-  Januar 2015
-
-\bibitem{scratch}
-  Scratch Wiki,
-  \emph{Raycaster}.
-  \url{http://wiki.scratch.mit.edu/w/index.php?title=Raycaster&oldid=105373},
-  September 2014
-  
-\bibitem{life}
-  Martin Gardner,
-  \emph{ Mathematical Games – The fantastic combinations of John Conway's new solitaire game ``life''}.
-  Scientific American 223 (link \url{http://ddi.cs.uni-potsdam.de/HyFISCH/Produzieren/lis_projekt/proj_gamelife/ConwayScientificAmerican.htm}),
-  Oktober 1970
-
-\end{thebibliography}
 
 \end{document}

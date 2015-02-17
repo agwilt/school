@@ -120,22 +120,7 @@ Alle Winkel in meinem Program sind im Bogenmaß, und zeigen "nach unten" von der
 \end{figure}
 
 \subsubsection{Liste}
-Hier noch mal eine Liste der wichtigen Variablen (mit Datentyp):
-\begin{center}
-	\begin{tabular}{|l|c|r|}
-		\hline
-		Variable & Datentyp & Beschreibung \\ \hline
-		\hline
-		\texttt{world} & 2-dim. Array & Das Spielfeld \\ \hline
-		\texttt{TILE} & \texttt{int} & Größe des \texttt{world}-Gitters \\ \hline
-		\texttt{p\_x} & \texttt{int} & X-Koordinate des Spielers \\ \hline
-		\texttt{p\_y} & \texttt{int} & Y-Koordinate des Spielers \\ \hline
-		\texttt{p\_a} & \texttt{float} & Winkel des Spielers \\ \hline
-		P & - & Punkt, an dem der Spieler steht (nur im Text) \\ \hline
-		V & - & Punkt, an dem der Strahl eine Vertikale schneidet \\ \hline
-		H & - & ditto, für die Horizontale \\ \hline
-	\end{tabular}
-\end{center}
+In dem Anhang steht eine Liste der wichtigen Variablen, mit datantyp:
 
 
 \subsection{Was macht ein Raycaster, genauer?}
@@ -396,7 +381,26 @@ Ich habe endlich einen Raycaster fertiggeschrieben, und hoffentlich ein paar Men
 \end{thebibliography}
 
 \appendix
-\chapter*{Anhang 1: Struktur von \texttt{main.py}}
+
+\chapter*{Anhang 1: Hilfen zu \texttt{main.py}}
+\section{Liste hilfreicher variablen}
+\begin{center}
+	\begin{tabular}{|l|c|r|}
+		\hline
+		Variable & Datentyp & Beschreibung \\ \hline
+		\hline
+		\texttt{world} & 2-dim. Array & Das Spielfeld \\ \hline
+		\texttt{TILE} & \texttt{int} & Größe des \texttt{world}-Gitters \\ \hline
+		\texttt{p\_x} & \texttt{int} & X-Koordinate des Spielers \\ \hline
+		\texttt{p\_y} & \texttt{int} & Y-Koordinate des Spielers \\ \hline
+		\texttt{p\_a} & \texttt{float} & Winkel des Spielers \\ \hline
+		P & - & Punkt, an dem der Spieler steht (nur im Text) \\ \hline
+		V & - & Punkt, an dem der Strahl eine Vertikale schneidet \\ \hline
+		H & - & ditto, für die Horizontale \\ \hline
+	\end{tabular}
+\end{center}
+
+\section{Struktur von \texttt{main.py}}
 Um die Struktur des Programms zusammenzufassen:
 \begin{spacing}{1.0}
 \begin{framed}
@@ -459,6 +463,5 @@ Und schließlich \texttt{cast()} selber:
 \end{enumerate}
 \end{framed}
 \end{spacing}
-
 
 \end{document}

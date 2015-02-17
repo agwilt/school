@@ -99,7 +99,7 @@ Bevor wir weiter gehen, ist es wichtig zu wissen, welche Variablen existieren, u
 
 \subsection{Daten}
 \subsubsection{Koordinaten}
-Weil wir das Spielfeld jetzt als Gitter sehen, haben wir auch zwei verschiedene Typen von Koordinaten: "normale" Koordinaten, z.B. wo der Spieler steht, und \texttt{world}- oder Gitterkoordinaten, die gröberen Koordinaten des Spielfeldes.
+Weil wir das Spielfeld jetzt als Gitter sehen, haben wir auch zwei verschiedene Typen von Koordinaten: ``normale'' Koordinaten, z.B. wo der Spieler steht, und \texttt{world}- oder Gitterkoordinaten, die gröberen Koordinaten des Spielfeldes.
 
 Das Spielfeld ist nämlich ein zweidimensionales Array, das 1 (für eine Wand) oder 0 (für leeren Raum) enthält. Dieses Modell ist natürlich erweiterbar: Man könnte auch Zahlencodes für Texturen oder einfach Farben in der Array haben. Als Beispiel eine Array, die das Spielfeld in Abb.~\ref{fig:grid} speichert:
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
@@ -114,7 +114,7 @@ Für den Spieler, den Strahl, und eventuellen Gegnern wollen wir aber genauere K
 Der Spieler hat die genauen Koordinaten \texttt{p\_x} und \texttt{p\_y}, und den Winkel \texttt{p\_a}. Um die \texttt{world}-Koordinaten des Spielers zu finden, teilen wir ohne Rest durch die Länge eines Feldes, z.B. \texttt{world[p\_x // TILE][p\_y // 64]}. Das bringt uns zu noch einem wichtigem Punkt:
 
 \subsubsection{Winkel}
-Alle Winkel in meinem Programm sind im Bogenmaß, und zeigen "nach unten" von der Horizontalen (Abb.~\ref{fig:angles}). Auch gehen alle Funktionen davon aus, dass ein Winkel immer positiv und immer unter $2\pi$ bleibt.
+Alle Winkel in meinem Programm sind im Bogenmaß, und zeigen ``nach unten'' von der Horizontalen (Abb.~\ref{fig:angles}). Auch gehen alle Funktionen davon aus, dass ein Winkel immer positiv und immer unter $2\pi$ bleibt.
 \begin{figure}[htbp] 
         \centering
         \includegraphics[width=4cm]{angles.png} 

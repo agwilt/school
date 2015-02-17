@@ -13,7 +13,7 @@
 \usepackage{hyperref}
 
 \onehalfspacing
-\setcounter{tocdepth}{4}
+\setcounter{tocdepth}{3}
 \setcounter{secnumdepth}{3}
 
 \addto\captionsgerman{\renewcommand{\chaptername}{Teil}}
@@ -76,7 +76,7 @@ Heutzutage findet der Raycaster nicht mehr viel Verwendung als Renderer, aber da
 \mychapter{2}{Wie funktioniert ein Raycaster?}
 \section{Allgemein}
 
-\subsection{Was macht ein Raycaster}
+\subsection{Was macht ein Raycaster?}
 Allgemein gesehen muss ein Raycaster den ersten Schnittpunkt zwischen einem Strahl (theoretisch eine Halbgerade) und einem Körper finden. Wir stellen uns vor, dass ein Strahl von einem Punkt (das Auge des Spieler) aus in einer bestimmten Richtung verläuft. Wir führen diesen Strahl immer weiter, bis er auf etwas trifft. Dann berechnen wir die Länge des Strahls, und wissen wie weit das Objekt weg ist. Man kann das in beliebig vielen Dimensionen machen, aber der Raycaster ist zweidimensional.
 
 Für jede Spalte des Fensters/Bildschirms wirft er einen Strahl (also z.B. 1920 Strahlen bei einer FHD Auflösung), und sieht wie weit weg er auf etwas stößt. Entsprechend wird dann eine vertikale Linie auf dem Bildschirm gemalt. Abb~\ref{fig:rcaster} zeigt ein Diagramm dazu.
@@ -125,7 +125,7 @@ Alle Winkel in meinem Programm sind im Bogenmaß, und zeigen ``nach unten'' von 
 In dem Anhang steht eine Liste der wichtigen Variablen, mit datantyp:
 
 
-\subsection{Was macht ein Raycaster, genauer?}
+\subsection{Was macht ein Raycaster -- genauer}
 Wenn man die Punkte in Abb~\ref{fig:grid} noch einmal betrachtet, fällt auf, dass eine Hälfte auf den vertikalen, und die andere auf den horizontalen ist. Es macht Sinn, beide separat zu überprüfen, weil man dann mit einem konstanten Wert inkrementieren kann.
 
 Betrachten wir die vertikalen Schnittstellen: alle sind auf der x-Achse eine Feldlänge (\texttt{TILE}) entfernt. Auch auf der y-Achse sind sie in einem konstanten Intervall voneinander entfernt. Für die horizontalen ist es gleich, nur x und y sind vertauscht. Zurück zu den vertikalen Schnittstellen.
@@ -136,7 +136,7 @@ Das gleiche wird dann noch mal mit den horizontalen Schnittstellen gemacht, bis 
 
 \section{Schritt für Schritt Erklärung}
 
-.. oder ``Was macht ein Raycaster, noch viel genauer?''. Hier wird die Vorgehensweise und der Code Schritt für Schritt erklärt, beginnend bei der Initialisierung diverser Variablen.
+.. oder ``Was macht ein Raycaster -- noch viel genauer''. Hier wird die Vorgehensweise und der Code Schritt für Schritt erklärt, beginnend bei der Initialisierung diverser Variablen.
 
 \subsection{Initialisierung}
 
@@ -384,8 +384,8 @@ Ich habe endlich einen Raycaster fertiggeschrieben, und hoffentlich ein paar Men
 
 \appendix
 
-\chapter*{Anhang 1: Hilfen zu \texttt{main.py}}
-\section{Liste hilfreicher variablen}
+\chapter{Anhang 1: Hilfen zu \texttt{main.py}}
+\section{Liste hilfreicher Variablen}
 \begin{center}
 	\begin{tabular}{|l|c|r|}
 		\hline

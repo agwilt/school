@@ -1,8 +1,8 @@
-Mention rasy casting as a general process, then the simple ray tracing renderer
-What is a ray caster?
-What problems does it solve?
-Advantages/disadvantages?
-History, examples (wolf3d)
-Not only rendering, but also e.g. collision detection
-
 fix walking: controls and checking
+
+A ray caster explained using only the top 1000 most used words:
+LINE-THROW-CHECKER
+
+A line goes forwards in a direction and hits walls. You find how long the line goes to see how far away the wall is.
+
+To be faster, the walls are blocks next to each other, and the line hits the sides of the blocks. First we see if/when the line hits the sides going up, and then the ones going to the side. We find the first point where the line goes to a new block, and then make the line longer by a fixed number in each direction, to check the new block.

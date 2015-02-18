@@ -36,8 +36,8 @@ TILE = 32
 pi = math.pi
 
 # Variables (maybe read from config file?)
-plane_x = 1280 # resolution of plane/screen
-plane_y = 720
+plane_x = 640 # resolution of plane/screen
+plane_y = 480
 fov = math.radians(60)
 step = 20
 turn = math.radians(5)

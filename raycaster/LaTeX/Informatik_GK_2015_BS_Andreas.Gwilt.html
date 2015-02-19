@@ -1,0 +1,330 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Andreas Gwilt" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<h1 id="einleitung">Einleitung</h1>
+<h2 id="was-ist-ein-raycaster">Was ist ein Raycaster?</h2>
+<p>Ein Raycaster ist eine Rendermethode, die eine pseudo-3D Welt basierend auf einem 2D Spielfeld rendert<span class="citation"></span>.</p>
+<p>Raycasting ist eigentlich ein ziemlich weiter Begriff, der meistens für die Rendermethode benutzt wird. Allgemein ist es aber eine Technik, um zu sehen, ob ein Strahl einen Körper schneidet. Man “wirft” einen Strahl, und überprüft, ob er eine Ebene schneidet oder nicht. Diese ist dem Raytracing sehr ähnlich, aber ist viel limitierter und auch schneller. Im Gegensatz zu Raycasting (was für jeden Pixel oder jede Spalte von Pixeln des Bildschirms einen Strahl wirft) simuliert Raytracing annähernd die Photonen, die von Lichtquellen auf Ebenen reflektieren und eventuell das Auge erreichen.</p>
+<p>Ich habe, um den Raycaster zu erklären, eine in der ersten Person gerenderten Version von Conways <em>Spiel des Lebens</em><span class="citation"></span> geschrieben, die einen Raycaster zum Rendern benutzt. In dieser Facharbeit werde ich die Funktionsweise des Raycasters erklären.</p>
+<div class="figure">
+<img src="wolf3d.png" alt="Wolfenstein 3D, ein Spiel, das einen Raycaster verwendete." />
+<p class="caption">Wolfenstein 3D, ein Spiel, das einen Raycaster verwendete.<span data-label="fig:wolf3d"></span></p>
+</div>
+<h2 id="welche-probleme-löst-ein-raycaster">Welche Probleme löst ein Raycaster?</h2>
+<p>Raycasting ist eine Methode, um zu überprüfen, ob ein Strahl eine Fläche schneidet oder nicht. Die häufigste Anwendung dafür ist als einfaches Renderverfahren, um ein Spielfeld in Pseudo-3D darzustellen. Es gibt aber auch mehrere andere Anwendungen, z.B. Kollisionserkennung oder um fest zu stellen, ob etwas von einem Punkt aus sichtbar ist oder nicht.</p>
+<h5 id="section" class="unnumbered"></h5>
+<p>In den frühen 1990ern, als Raycasting beliebt wurde, hatte man noch ziemlich wenig Rechenleistung, wollte aber “3D” Spiele schreiben. Eine wirklich dreidimensionales Spiel-Engine (wie die 1996 erschienene Quake Engine) war noch nicht schnell genug, um in einem Spiel benutzt zu werden, also verwendete man Methoden wie Raycasting, um die Illusion von 3D herzustellen. Das vielleicht berühmteste Spiel, was Raycasting benutzte, war Wolfenstein 3D (Auch der erste beliebte Ego-Shooter). Wolfenstein 3D hatte ein zweidimensionales Spielfeld, was in 3D dargestellt wurde.</p>
+<p>Raycasting musste jedoch sehr viele Kompromisse eingehen, um so schnell zu sein. Das Spielfeld war ein zweidimensionales Array, also konnte es nur Rechte Winkel geben, und Decke und Boden mussten immer gleich hoch bleiben. Man erkennt an Abb [fig:wolf3d] deutlich, dass das Spiel nicht wirklich dreidimensional ist. Auch sieht das Bild blockhaft aus, und die Beleuchtung ist nicht realistisch.</p>
+<h2 id="die-geschichte-des-raycasters">Die Geschichte des Raycasters</h2>
+<p>Raycasting wurde schon diskutiert, lange bevor PCs leistungsstark genug waren, um es wirklich in Spielen zu benutzen. Eine 1982 veröffentlichte Abhandlung von Scott Roth beschreibt Raycasting als Methode, dreidimensionale Körper zu rendern.</p>
+<p>Eines der ersten Spiele, die das Prinzip implementierten, war <em>Hovertank 3D</em>, was in April 1991 von id Software veröffentlicht wurde. <em>Hovertank 3D</em> war noch sehr primitiv und hatte noch keine Texturen auf den Wänden, aber es war der Anfang eines neuen Genre von Spielen. Im darauffolgenden November erschien <em>Catacomb 3-D</em>, was Texturen hatte, und oft als der erste Ego-Shooter gesehen wird.</p>
+<p>Zufrieden mit den zwei “Prototypen” entwickelten id Software ein neues Spiel:<br /><em>Wolfenstein 3D</em>, was 1992 veröffentlicht wurde, war ein großer Erfolg und machte Ego-Shooter, und damit den Raycaster, bekannt.</p>
+<p>Heutzutage findet der Raycaster nicht mehr viel Verwendung als Renderer, aber das Prinzip wird mit dem Raytracer fortgeführt. Der Raytracer arbeitet immer in drei Dimensionen, und ist rekursiv, d.h. er simuliert den kompletten Gang eines Lichtstrahles, inklusiv Reflexionen. Raytracing ist aber noch immer zu langsam für Echtzeit Darstellung, und findet eher als Renderer von stillen Bildern Gebrauch.</p>
+<h1 id="wie-funktioniert-ein-raycaster">Wie funktioniert ein Raycaster?</h1>
+<h2 id="allgemein">Allgemein</h2>
+<h3 id="was-macht-ein-raycaster">Was macht ein Raycaster?</h3>
+<p>Allgemein gesehen muss ein Raycaster den ersten Schnittpunkt zwischen einem Strahl (theoretisch eine Halbgerade) und einem Körper finden. Wir stellen uns vor, dass ein Strahl von einem Punkt (das Auge des Spieler) aus in einer bestimmten Richtung verläuft. Wir führen diesen Strahl immer weiter, bis er auf etwas trifft. Dann berechnen wir die Länge des Strahls, und wissen wie weit das Objekt weg ist. Man kann das in beliebig vielen Dimensionen machen, aber der Raycaster ist zweidimensional.</p>
+<p>Für jede Spalte des Fensters/Bildschirms wirft er einen Strahl (also z.B. 1920 Strahlen bei einer FHD Auflösung), und sieht wie weit weg er auf etwas stößt. Entsprechend wird dann eine vertikale Linie auf dem Bildschirm gemalt. Abb [fig:rcaster] zeigt ein Diagramm dazu.</p>
+<div class="figure">
+<img src="raycasting.png" alt="Bild von http://www.fabiensanglard.net/wolf3d/index.php" />
+<p class="caption">Bild von <a href="http://www.fabiensanglard.net/wolf3d/index.php" class="uri">http://www.fabiensanglard.net/wolf3d/index.php</a><span data-label="fig:rcaster"></span></p>
+</div>
+<p>Leider ist es aber sehr langsam, für jeden Pixel des Strahls zu sehen, ob er in einem Objekt oder nicht ist. Deshalb sehen wir das Spielfeld als Gitter (Siehe Abb. [fig:grid]), und müssen so an viel weniger Stellen prüfen. In dem Gitter ist der Spieler P in dem Feld (0,3). Der Strahl (der von P kommt und den Winkel <span class="math"><em>α</em></span> hat) muss jetzt nur an dem ersten Punkten in (1,3), (1,2), (2,2) und (2,1) geprüft werden.</p>
+<div class="figure">
+<img src="grid.png" alt="An den roten Punkten geht der Strahl in ein neues Feld" />
+<p class="caption">An den roten Punkten geht der Strahl in ein neues Feld<span data-label="fig:grid"></span></p>
+</div>
+<p>Bevor wir weiter gehen, ist es wichtig zu wissen, welche Variablen existieren, und wie sie hier heißen.</p>
+<h3 id="daten">Daten</h3>
+<h4 id="koordinaten">Koordinaten</h4>
+<p>Weil wir das Spielfeld jetzt als Gitter sehen, haben wir auch zwei verschiedene Typen von Koordinaten: “normale” Koordinaten, z.B. wo der Spieler steht, und <code>world</code>- oder Gitterkoordinaten, die gröberen Koordinaten des Spielfeldes.</p>
+<p>Das Spielfeld ist nämlich ein zweidimensionales Array, das 1 (für eine Wand) oder 0 (für leeren Raum) enthält. Dieses Modell ist natürlich erweiterbar: Man könnte auch Zahlencodes für Texturen oder einfach Farben in der Array haben. Als Beispiel eine Array, die das Spielfeld in Abb. [fig:grid] speichert:</p>
+<pre><code>world = [[1,1,0,0],
+         [1,0,0,0],
+         [1,1,1,0]]</code></pre>
+<p>Um z.B. Feld (0,1) zu finden, sehen wir einfach in <code>world[0][1]</code> nach. Für die Breite und Höhe des Spielfeldes sind <code>hl</code> (Horizontale Länge) und <code>vl</code> zuständig.</p>
+<h5 id="section-1" class="unnumbered"></h5>
+<p>Für den Spieler, den Strahl, und eventuellen Gegnern wollen wir aber genauere Koordinaten haben. Dazu müssen wir wir definieren, wie lang ein <code>world</code>-Feld in den genauen Koordinaten ist. Die Größe nenne ich <code>TILE</code> (in diesem Fall auf 32 gesetzt).</p>
+<p>Der Spieler hat die genauen Koordinaten <code>p_x</code> und <code>p_y</code>, und den Winkel <code>p_a</code>. Um die <code>world</code>-Koordinaten des Spielers zu finden, teilen wir ohne Rest durch die Länge eines Feldes, z.B. <code>world[p_x // TILE][p_y // 64]</code>. Das bringt uns zu noch einem wichtigem Punkt:</p>
+<h4 id="winkel">Winkel</h4>
+<p>Alle Winkel in meinem Programm sind im Bogenmaß, und zeigen “nach unten” von der Horizontalen (Abb. [fig:angles]). Auch gehen alle Funktionen davon aus, dass ein Winkel immer positiv und immer unter <span class="math">2<em>π</em></span> bleibt.</p>
+<p><img src="angles.png" alt="image" /> [fig:angles]</p>
+<h4 id="liste">Liste</h4>
+<p>In dem Anhang steht eine Liste der wichtigen Variablen, mit datantyp:</p>
+<h3 id="was-macht-ein-raycaster-genauer">Was macht ein Raycaster – genauer</h3>
+<p>Wenn man die Punkte in Abb [fig:grid] noch einmal betrachtet, fällt auf, dass eine Hälfte auf den vertikalen, und die andere auf den horizontalen ist. Es macht Sinn, beide separat zu überprüfen, weil man dann mit einem konstanten Wert inkrementieren kann.</p>
+<p>Betrachten wir die vertikalen Schnittstellen: alle sind auf der x-Achse eine Feldlänge (<code>TILE</code>) entfernt. Auch auf der y-Achse sind sie in einem konstanten Intervall voneinander entfernt. Für die horizontalen ist es gleich, nur x und y sind vertauscht. Zurück zu den vertikalen Schnittstellen.</p>
+<p>Wenn wir den ersten Punkt gefunden haben, wo der Strahl eine vertikale Grenze des Gitters überschreitet, prüfen wir nach, ob dieser Punkt in <code>world</code>-Koordinaten gefüllt (1) oder nicht (0) ist. Wenn nicht, erweitern wir den Strahl, indem wir zu unserem ersten Punkt die Intervalle <code>x_i</code> und <code>y_i</code> addieren. Das wird wiederholt, bis der Strahl auf etwas trifft (also in einem <code>1</code> Feld steht).</p>
+<p>Das gleiche wird dann noch mal mit den horizontalen Schnittstellen gemacht, bis man zwei Punkte oder Distanzen (zu den Punkten) hat. Dann kann die kürzere Distanz zurückgegeben werden, und für das Rendern oder Gehen benutzt werden.</p>
+<h2 id="schritt-für-schritt-erklärung">Schritt für Schritt Erklärung</h2>
+<p>.. oder “Was macht ein Raycaster – noch viel genauer”. Hier wird die Vorgehensweise und der Code Schritt für Schritt erklärt, beginnend bei der Initialisierung diverser Variablen.</p>
+<h3 id="initialisierung">Initialisierung</h3>
+<p>Zuerst müssen einige Variablen gesetzt werden. Einige werden in dem ganzen Spiel konstant bleiben:</p>
+<pre><code>TILE = 32 # L\&quot;ange der Ziegel von world
+pi = math.pi
+
+plane_x = 1280 # Bildschirm/Fenster Aufl\&quot;osung
+plane_y = 720
+fov = math.radians(60) # Sichtfeld</code></pre>
+<p>Jetzt kommen einige Variablen für das Spielfeld und den Spieler, die zum Teil geändert werden können (z.B. Spielerposition):</p>
+<pre><code>hl = 100 # Horizontale/vertikale L\&quot;ange des Spielfeldes
+vl = 50
+world = [[0 for i in range(vl)] for j in range(hl)] # Welt array
+p_x = 32 # Spieler x,y
+p_y = 32
+p_a = 0 # Spieler Winkel (zeigt am Moment nach &quot;rechts&quot;)
+
+plane_d = (plane_x / 2) / math.tan(fov/2) # distance to plane
+ray_angle = fov / plane_x # angle between rays</code></pre>
+<h3 id="die-zentrale-schleife-draw-funktion">Die zentrale Schleife / <code>draw</code> Funktion</h3>
+<h4 id="schleife">Schleife</h4>
+<p>Danach wird <code>pygame</code> (Die Graphik-Library) initialisiert, und die zentrale Schleife angefangen. Spiel-schleifen haben in der Regel drei Schritte:</p>
+<ol>
+<li><p>Befehle von dem Benutzer holen</p></li>
+<li><p>Mit dieser Information den Spielzustand erneuern</p></li>
+<li><p>Das Spiel rendern</p></li>
+</ol>
+<p>In meinem Beispiel ist Schritt 1. Nachschauen, welche Tasten gedrückt werden. Entsprechend ändert sich <code>p_a</code>, wenn der Spieler sich drehen will, und <code>p_x</code>/<code>p_y</code>, wenn der Spieler sich bewegt. Dazu wird die <code>walk(world, p_x, p_y, a)</code> Funktion abgerufen, die mithilfe der <code>cast</code> Funktion prüft, ob der Weg frei ist oder nicht. Danach wird das Spielfeld nach den <em>Life</em>-Regeln von der <code>update(world)</code> Funktion aktualisiert.</p>
+<h4 id="draw"><code>draw()</code></h4>
+<p>Hauptsächlich interessieren wir uns aber für die <code>draw(world)</code> Funktion, die das Ganze mithilfe des Raycasters rendert. Bevor das eigentliche Rendern anfängt, wird der Hintergrund gemalt. In diesem Fall heißt das einfach, das Fenster weißzu füllen, und für den Boden ein hellgraues Rechteck zu malen:</p>
+<pre><code>screen.fill((255,255,255))
+pygame.draw.rect(screen, (200,200,200), \
+((0,(plane_y/2)),(plane_x,plane_y)))</code></pre>
+<p>Wie beschrieben wirft man jetzt für jede Spalte des Fensters einen Strahl mit <code>cast</code>, und malt mit der Information einen Vertikalen Strich in der Spalte. Dazu muss man zuerst den Winkel des ersten Strahls finden. Dazu subtrahiert man die Hälfte des Blickwinkels von dem Spieler-Winkel <code>p_a</code>. Dabei muss man mod <span class="math">2<em>π</em></span> bzw. 360 rechnen, damit man immer einen positiven Winkel hat.</p>
+<pre><code>angle = (p_a - (fov/2)) % (2*pi)</code></pre>
+<p>Mit dem Startwinkel kann man jetzt mit einer Schleife durch die Spalten iterieren, und mit der <code>cast</code> Funktion die Distanz zu der nächsten Wand bestimmen. Nachdem das fertig ist, wird das Fenster aktualisiert.</p>
+<pre><code>for col in range(plane_x):
+        dist = cast(world, p_x, p_y, angle)
+        if dist &gt; 0:
+                pygame.draw.line(screen, (0,0,0), \
+                (col,((plane_y/2) - dist_to_offset(dist))), \
+                (col, (plane_y/2) + dist_to_offset(dist)))
+        angle = (angle + ray_angle) % (2*pi)
+pygame.display.flip()</code></pre>
+<p>Wenn diese Distanz nicht -1 (keine Kollision) ist, wird eine Linie auf dem Fenster gemalt. Um herauszufinden, wie lang die Linie sein sollte, dient die <code>dist_to_offset</code> Funktion, die eine Distanz annimmt, und den Abstand des Anfangs der Linie zu der Mitte der Spalte zurückgibt. Die wichtigste Funktion ist aber <code>cast</code>: die Funktion, die die Distanz zur nächsten Wand zurückgibt.</p>
+<h3 id="die-cast-funktion">Die <code>cast</code> Funktion</h3>
+<h4 id="struktur">Struktur</h4>
+<p>Die <code>cast</code> Funktion besteht daraus, zuerst nach Schnittpunkten mit den vertikalen Wänden, dann mit den horizontalen zu prüfen, und dann die kürzeste Distanz zurückzugeben. Zuerst werden <code>vvalid</code> und <code>hvalid</code> auf False gesetzt; wir gehen davon aus, dass wir keinen Wert haben. Sobald wir einen vertikalen oder horizontalen Schnittpunkt finden, werden <code>vvalid</code> bzw. <code>hvalid</code> auf True gesetzt.<br />Die Reihenfolge vertikal/horizontal ist egal, aber ich habe mit vertikal angefangen.</p>
+<h4 id="vertikale-schnittpunkte">Vertikale Schnittpunkte</h4>
+<p>Zuerst müssen wir festlegen, ob es eigentlich Sinn macht, den Strahl zu werfen. Wenn der Winkel <code>a</code> vertikal ist, überspringen wir die vertikalen Schnittpunkte:</p>
+<pre><code>if not (a == 0.5*pi or a == 1.5*pi):</code></pre>
+<h5 id="der-erste-punkt">Der erste Punkt:</h5>
+<p>Um herauszufinden, wo der Strahl die Vertikalen Grenzen überschreitet, müssen wir einige Werte finden, unter anderem den Ersten Punkt. Betrachten wir zuerst <code>v_x</code>. Wenn der Strahl nach rechts zeigt (<code>(a &lt; 0.5 * pi) or (a &gt; 1.5 * pi)</code>), ist <code>v_x</code> der erste Punkt in der neuen Zelle (<span class="math"><em>T</em><em>I</em><em>L</em><em>E</em> * ⟨<em>S</em><em>p</em><em>i</em><em>e</em><em>l</em><em>e</em><em>r</em>_<em>Z</em><em>e</em><em>l</em><em>l</em><em>e</em>⟩ + <em>T</em><em>I</em><em>L</em><em>E</em></span>). Sonst ist <code>v_x</code> der “letzte” Punkt in der Zelle vor der, in der der Spieler steht, also <span class="math"><em>T</em><em>I</em><em>L</em><em>E</em> * ⟨<em>S</em><em>p</em><em>i</em><em>e</em><em>l</em><em>e</em><em>r</em>_<em>Z</em><em>e</em><em>l</em><em>l</em><em>e</em>⟩ − 1</span>. Um die Zelle des Spielers zu finden, teilt man ohne rest durch TILE; in python <code>p_x // TILE</code>. Somit haben wir diesen code:</p>
+<pre><code>if (a &lt; 0.5 * pi) or (a &gt; 1.5 * pi):
+    v_x = (p_x // TILE)*TILE + TILE
+else:
+    v_x = (p_x // TILE)*TILE - 1</code></pre>
+<p>Die Fälle <span class="math"><em>a</em> = 0.5<em>π</em></span> und <span class="math"><em>a</em> = 1.5<em>π</em></span> haben wir schon ausgeschlossen. Man könnte natürlich auch <code>((p_x // TILE) + 1) * TILE</code> rechnen, aber ich glaube es macht keinen Unterschied.</p>
+<p>Schwieriger wird es, <code>v_y</code> auszurechnen. Dazu werden wir <span class="math"><em>v</em>_<em>y</em> = <em>p</em>_<em>y</em> + Δ<em>y</em></span> rechnen, indem wir <span class="math">Δ<em>y</em></span> mit Tangens berechnen (Siehe Abb. [fig:vcheck1]). Da wir hier ein rechtwinkliges Dreieck haben, ist <span class="math">$\tan a = \frac{-\Delta y}{\Delta x}$</span>, wobei zu beachten ist, dass <span class="math">Δ<em>y</em></span> negativ ist, weil der Winkel “nach unten” zeigt. Erst bei einem negativen Winkel (bzw. <span class="math"><em>a</em> &gt; <em>π</em></span>) ist <span class="math">Δ<em>y</em></span> positiv.</p>
+<div class="figure">
+<img src="vcheck1.png" alt="Punkt V finden" />
+<p class="caption">Punkt V finden<span data-label="fig:vcheck1"></span></p>
+</div>
+<p><span class="math">Δ<em>x</em></span> ist ziemlich leicht zu berechnen: einfach <span class="math"><em>v</em>_<em>x</em> − <em>p</em>_<em>x</em></span>. Somit haben wir <br /><span class="math">$$\tan a = \frac{-\Delta y}{v\_x - p\_x}$$</span><br /> oder <br /><span class="math">Δ<em>y</em> =  − tan<em>a</em> ⋅ (<em>v</em>_<em>x</em> − <em>p</em>_<em>x</em>)</span><br />. Also ist <span class="math"><em>v</em>_<em>y</em> = <em>p</em>_<em>y</em> − tan<em>a</em> ⋅ (<em>v</em>_<em>x</em> − <em>p</em>_<em>x</em>)</span>. Nur in dem Spezialfall <span class="math"><em>a</em> = <em>π</em></span> oder <span class="math"><em>a</em> = 0</span> ist <span class="math"><em>v</em>_<em>y</em> = <em>p</em>_<em>y</em></span>, da der Strahl sich nicht auf der y-Achse bewegt. Unser Code ist also:</p>
+<pre><code>if a == 0 or a == pi:
+    v_y = p_y
+else:
+    v_y = int(p_y - math.tan(a)*(v_x-p_x))</code></pre>
+<h5 id="das-inkrement-von-punkt-v">Das Inkrement von Punkt V:</h5>
+<p>Als nächstes müssen wir herausfinden, wie viel nach links/rechts (<code>x_i</code>)und wie viel nach oben/unten (<code>y_i</code>) wir gehen müssen, um den neuen Punkt zu finden. Diese Werte werden für jede Iteration der Schleife zu den alten Koordinaten addiert. Weil wir immer auf der nächsten Vertikalen überprüfen, ist <code>x_i</code> +/- <code>TILE</code>. Wie bei <code>v_x</code> ist <code>x_i</code> positiv, wenn der Strahl nach rechts verläuft, und sonst negativ. Da wir das schon für <code>v_x</code> überprüfen, können wir den Code in den gleichen <code>if</code>-Block stellen, um dies zu erlangen:</p>
+<pre><code>if (a &lt; 0.5 * pi) or (a &gt; 1.5 * pi):
+    x_i = TILE
+    v_x = (p_x // TILE)*TILE + TILE
+else:
+    x_i = -1 * TILE
+    v_x = (p_x // TILE)*TILE - 1</code></pre>
+<div class="figure">
+<img src="vcheck2.png" alt="x_i und y_i" />
+<p class="caption">x_i und y_i</p>
+</div>
+<p>Danach kommt y_i, wozu wir wieder den Tangens brauchen. Dieses Mal ist es aber ein bisschen einfacher: Wieder haben wir <br /><span class="math">$$\tan a = \frac{-y\_i}{x\_i}$$</span><br />aber dieses mal Kennen wir schon <code>x_i</code>, also formen wir einfach um zu <br /><span class="math"><em>y</em>_<em>i</em> =  − tan<em>a</em> ⋅ <em>x</em>_<em>i</em></span><br /> Auch hier ist <span class="math"><em>y</em>_<em>i</em> = 0</span>, wenn der Strahl horizontal ist. Eigentlich müssen wir nicht einen zusätzlichen <code>if</code>-Block dafür haben, denn <span class="math">tan0 = 0</span> und <span class="math">tan<em>π</em> = 0</span>, aber es hilft, darüber bewusst zu sein. Jetzt ist unser ganzer Code, um diese Werte zu bestimmen, wie folgt:</p>
+<pre><code># Get x_i (+TILE if pointing right, -TILE if left).
+# Get v_x (x coord of the first point).
+if (a &lt; 0.5 * pi) or (a &gt; 1.5 * pi): # pointing right
+        x_i = TILE
+        v_x = (p_x // TILE)*TILE + TILE
+else:
+        x_i = -1 * TILE
+        v_x = (p_x // TILE)*TILE - 1
+
+# Get y_i, using tan.
+# Get v_y, using magic.
+if a == 0 or a == pi: # completely horizontal ray
+        y_i = 0
+        v_y = p_y
+else:
+        y_i = int(math.tan(a) * (-1) * x_i)
+        v_y = int(p_y - math.tan(a)*(v_x-p_x))</code></pre>
+<p>Leser, die den Code gelesen haben, haben vielleicht gemerkt, dass bei <code>y_i</code> und <code>v_y</code> um den Ausdruck die <code>int()</code> Funktion benutzt wird. Die Koordinaten müssen noch immer <code>int</code>s bleiben, aber python konvertiert in einem Versuch, hilfreich zu sein, <code>int</code>s automatisch in <code>float</code>s.</p>
+<h5 id="die-schleife">Die Schleife:</h5>
+<p>Jetzt, wo wir die nötigen Werte haben, können wir die Schleife beginnen, die durch die Punkte iteriert. In der Schleife prüfen wir einfach, ob der Punkt <span class="math">(<em>v</em>_<em>x</em>, <em>v</em>_<em>y</em>)</span> in einem “vollen” Feld oder nicht steht. Wie vorher beschrieben, ist die Methode, um von Koordinaten zu <code>world</code>-Koordinaten zu kommen, einfach <span class="math">⌊<em>k</em> ÷ <em>T</em><em>I</em><em>L</em><em>E</em>⌋</span>, in python <code>k // TILE</code>.<br />Die Überprüfung, ob Punkt V auf einem vollen Feld steht, ist also einfach <code>world[v_x // TILE][v_y // TILE]</code>: die Zellen sind sowieso 1 oder 0. Wenn das also 1 ist, wird <code>vvalid</code> also auf <code>True</code> gesetzt, und die Schleife verlassen.<br />Weil es passieren kann, dass der erste Punkt V schon außerhalb des Spielfeldes ist, ist diese ganze Überprüfung in einem <code>try</code> gepackt. Wenn ein <code>IndexError</code> passiert, <code>break</code>ed es wieder die Schleife und geht weiter zu den horizontalen Überprüfungen.<br />Ansonsten werden zu <code>v_x</code> und <code>v_y</code> <code>x_i</code> bzw. <code>y_i</code> addiert, und die Schleife fortgesetzt, solang V noch ein gültiger Punkt ist. Der resultierende Code ist also:</p>
+<pre><code># hl is the number of cells along the horizontal
+for i in range(hl):
+        try:
+                if world[v_x // TILE][v_y // TILE]:
+                        vvalid = True
+                        break
+        except IndexError:
+                if debug:
+                        print(&quot;v. error!&quot;, v_x,v_y, \
+                        &quot;\n Ray:&quot;, p_x, p_y, a)
+                break
+        v_x += x_i
+        v_y += y_i
+        if v_x &gt;= (hl*TILE) or v_y &gt;= (vl*TILE):
+                break</code></pre>
+<p>Zuletzt wird noch die Distanz zwischen den Punkten P und V berechnet, mit dem Satz des Pythagoras:</p>
+<pre><code>vdist = math.sqrt((v_x-p_x)**2 + (v_y-p_y)**2)</code></pre>
+<p>Damit haben wir die erste vertikale Grenze, die der Strahl schneidet.</p>
+<h4 id="horizontale-schnitte">Horizontale Schnitte</h4>
+<p>Für die horizontalen Schnittpunkte machen wir ungefähr das Gleiche wie für vertikale, nur die Achsen sind vertauscht: <code>y_i</code> ist hier +/- <code>TILE</code>, und <code>x_i</code> muss mit Tangens berechnet werden. Das Meiste kann aber leicht von dem Vorigen übertragen werden. Zuletzt werden wir eine mögliche Distanz in <code>hdist</code> haben, wenn <code>havlid True</code> ist.</p>
+<h4 id="vergleich-und-return">Vergleich und <code>return</code></h4>
+<p>Jetzt haben wir also minimal 0 Distanzen, und maximal 2. Mit einer einfachen <code>if</code> / <code>elif</code> Kette können wir daraus die niedrigste Distanz finden: dann haben wir den ersten Punkt, an dem der Strahl auf etwas trifft.<br />Zuerst sehen wir, ob beide Werte <code>True</code> sind. Wenn schon, geben wir die kürzere Distanz zurück:</p>
+<pre><code>if vvalid and hvalid: # both rays collide
+        return min(vdist, hdist)</code></pre>
+<p>Danach wird einzeln geprüft, ob <code>vvalid</code> bzw. <code>hvalid</code> Wahr sind. Entsprechend wird dann <code>vdist</code> oder <code>hdist</code> zurückgegeben:</p>
+<pre><code>elif vvalid: # only vertical collision
+        return vdist
+elif hvalid:
+        return hdist</code></pre>
+<p>Schließlich wird -1 zurückgegeben, wenn der Strahl auf nichts trifft:</p>
+<pre><code>else: # no collision
+        return -1</code></pre>
+<h1 id="schlussteil">Schlussteil</h1>
+<p>Jetzt habe ich hoffentlich verständlich erklärt, wie genau ein Raycaster funktioniert. Das Prinzip ist ziemlich einfach, und ein gut geschriebener Raycaster braucht wenig Rechenleistung, auch wenn das Spielfeld sehr limitiert wird.</p>
+<p>Die goldene Zeit des Raycaster war nicht sehr lang, aber produzierte Hits wie Wolfenstein 3D. Noch dazu wird das grundlegende Prinzip, den Weg eines Strahls zu verfolgen, noch immer in Raytracern benutzt.</p>
+<p>Mein selbst geschriebener Raycaster ist nicht besonders schnell (was zum Teil auch an python liegt) und die Steuerung könnte besser sein, aber sonst bin ich damit sehr zufrieden. Auch will ich die python Dokumentation und das LaTeX Buch von WikiBooks loben, ohne die ich nicht sehr weit gekommen wäre. Jetzt nur noch ein paar Quellen:</p>
+<p><span>9</span></p>
+<p>Gardner, Martin: <em>Mathematical Games – The fantastic combinations of John Conway’s new solitaire game “life”</em> – Scientific American 223 (link <a href="http://ddi.cs.uni-potsdam.de/HyFISCH/Produzieren/lis_projekt/proj_gamelife/ConwayScientificAmerican.htm" class="uri">http://ddi.cs.uni-potsdam.de/HyFISCH/Produzieren/lis_projekt/proj_gamelife/ConwayScientificAmerican.htm</a>), (10.1970)</p>
+<p>Permadi, F.: <em>Ray-Casting Tutorial For Game Development And Other Purposes</em> – <a href="http://www.permadi.com/tutorial/raycast/" class="uri">http://www.permadi.com/tutorial/raycast/</a> (1996)</p>
+<p>Pygame Team: <em>Pygame Documentation</em> – <a href="http://www.pygame.org/docs/" class="uri">http://www.pygame.org/docs/</a> (Abgerufen 02.2015)</p>
+<p>Python Software Foundation: <em>Python 3.3 documentation</em> – <a href="http://docs.python.org/3.3/" class="uri">http://docs.python.org/3.3/</a> (Abgerufen 02.2015)</p>
+<p>Sanglard, Fabien: <em>Wolfenstein 3D For iPhone</em> – <a href="http://www.fabiensanglard.net/wolf3d/index.php" class="uri">http://www.fabiensanglard.net/wolf3d/index.php</a> (04.2009)</p>
+<p>Scratch Wiki: <em>Raycaster</em> – <a href="http://wiki.scratch.mit.edu/w/index.php?title=Raycaster&amp;oldid=105373" class="uri">http://wiki.scratch.mit.edu/w/index.php?title=Raycaster&amp;oldid=105373</a>, (06.09.2014)</p>
+<p>Wiki Books: <em>LaTeX</em> – <a href="http://en.wikibooks.org/w/index.php?title=LaTeX&amp;oldid=2757849" class="uri">http://en.wikibooks.org/w/index.php?title=LaTeX&amp;oldid=2757849</a> (23.01.2015)</p>
+<p>Wikipedia: <em>Ray casting</em> – <a href="http://en.wikipedia.org/w/index.php?title=Ray_casting&amp;oldid=639531500" class="uri">http://en.wikipedia.org/w/index.php?title=Ray_casting&amp;oldid=639531500</a> (25.12.2014)</p>
+<p>Wikipedia: <em>Raycasting</em> – <a href="http://de.wikipedia.org/w/index.php?title=Raycasting&amp;oldid=137530408" class="uri">http://de.wikipedia.org/w/index.php?title=Raycasting&amp;oldid=137530408</a>, (07.01.2015)</p>
+<h1 id="anhang-1-hilfen-zu-main.py">Anhang 1: Hilfen zu <code>main.py</code></h1>
+<h2 id="liste-hilfreicher-variablen">Liste hilfreicher Variablen</h2>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="center">Datentyp</th>
+<th align="right">Beschreibung</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left"><code>world</code></td>
+<td align="center">2-dim. Array</td>
+<td align="right">Das Spielfeld</td>
+</tr>
+<tr class="even">
+<td align="left"><code>TILE</code></td>
+<td align="center"><code>int</code></td>
+<td align="right">Größe des <code>world</code>-Gitters</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>p_x</code></td>
+<td align="center"><code>int</code></td>
+<td align="right">X-Koordinate des Spielers</td>
+</tr>
+<tr class="even">
+<td align="left"><code>p_y</code></td>
+<td align="center"><code>int</code></td>
+<td align="right">Y-Koordinate des Spielers</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>p_a</code></td>
+<td align="center"><code>float</code></td>
+<td align="right">Winkel des Spielers</td>
+</tr>
+<tr class="even">
+<td align="left">P</td>
+<td align="center">-</td>
+<td align="right">Punkt, an dem der Spieler steht (nur im Text)</td>
+</tr>
+<tr class="odd">
+<td align="left">V</td>
+<td align="center">-</td>
+<td align="right">Punkt, an dem der Strahl eine Vertikale schneidet</td>
+</tr>
+<tr class="even">
+<td align="left">H</td>
+<td align="center">-</td>
+<td align="right">ditto, für die Horizontale</td>
+</tr>
+</tbody>
+</table>
+<h2 id="struktur-von-main.py">Struktur von <code>main.py</code></h2>
+<p>Um die Struktur des Programms zusammenzufassen:</p>
+<p><span>1.0</span></p>
+<ol>
+<li><p>Diverse (globale) Variablen werden initialisiert</p></li>
+<li><p>Die zentrale Schleife des Spiels wird begonnen. Diese Schleife macht folgendes:</p>
+<ul>
+<li><p>Benutzereingaben holen, <code>walk()</code> oder <code>quit()</code> aufrufen</p></li>
+<li><p>Mit draw() rendern</p></li>
+<li><p>Mit update() die Welt aktualisieren</p></li>
+</ul></li>
+</ol>
+<p><code>draw()</code> funktioniert so:</p>
+<p><span>1.0</span></p>
+<ol>
+<li><p>Hintergrund malen</p></li>
+<li><p>Startwinkel bestimmen</p></li>
+<li><p>Durch die Spalten des Fensters iterieren:</p>
+<ul>
+<li><p>Strahl mit <code>cast()</code> werfen</p></li>
+<li><p>Mit der Distanz und <code>dist_to_offset()</code> Strich malen</p></li>
+<li><p>Winkel inkrementieren</p></li>
+</ul></li>
+<li><p>Fenster aktualisieren</p></li>
+</ol>
+<p>Und schließlich <code>cast()</code> selber:</p>
+<p><span>1.0</span></p>
+<ol>
+<li><p>Auf Sonderfälle überprüfen</p></li>
+<li><p>Variablen initialisieren</p></li>
+<li><p>In einem <code>if</code>-Block nach vertikalen Schnittstellen prüfen:</p>
+<ul>
+<li><p>Punkt V und Inkrement finden</p></li>
+<li><p>In einer <code>for</code>-Schleife den Strahl immer weiter führen:</p>
+<ul>
+<li><p>Prüfen, ob V in einer lebenden Zelle ist</p></li>
+<li><p>V inkrementieren</p></li>
+</ul></li>
+<li><p>Distanz berechnen</p></li>
+</ul></li>
+<li><p>In noch einem <code>if</code>-Block nach horizontalen Schnittstellen prüfen:</p>
+<ul>
+<li><p>Punkt H und Inkrement finden</p></li>
+<li><p>In einer <code>for</code>-Schleife den Strahl immer weiter führen:</p>
+<ul>
+<li><p>Prüfen, ob H in einer lebenden Zelle ist</p></li>
+<li><p>H inkrementieren</p></li>
+</ul></li>
+<li><p>Distanz berechnen</p></li>
+</ul></li>
+<li><p>Distanzen vergleichen, Wert zurückgeben</p></li>
+</ol>
+<h1 id="bilder">Bilder</h1>
+<div class="figure">
+<img src="hovertank.png" alt="Hovertank 3D" />
+<p class="caption">Hovertank 3D</p>
+</div>
+<div class="figure">
+<img src="wolf3d.png" alt="Wolfenstein 3D" />
+<p class="caption">Wolfenstein 3D</p>
+</div>
+</body>
+</html>

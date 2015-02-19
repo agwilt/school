@@ -148,7 +148,7 @@ def cast(world, p_x, p_y, a):
 	
 	# OK, now we'll check horizontal intersections.
 	# Again, we won't check if the ray is 0° or 180°.
-	if 0 and not (a == 0 or a == pi):
+	if not (a == 0 or a == pi):
 
 		# Get y_i and h_y
 		if a < pi: # pointing down
@@ -164,7 +164,7 @@ def cast(world, p_x, p_y, a):
 			h_x = p_x
 		else:
 			x_i = int(-1 * y_i / math.tan(a))
-			h_x = p_x # TODO: write this bit
+			h_x = int(p_x - ((p_y - v_y) / math.tan(a)))
 
 		for i in range(vl):
 			try:
@@ -179,6 +179,8 @@ def cast(world, p_x, p_y, a):
 			h_y += y_i
 			if h_x >= (hl*TILE) or h_y >= (vl*TILE):
 				break
+
+		hdist = math.sqrt((h_x-p_x)**2 + (h_y-p_y)**2)
 
 	# Return the shortest distance.
 	if vvalid and hvalid: # both rays collide

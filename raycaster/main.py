@@ -121,27 +121,18 @@ def cast(world, p_x, p_y, a):
 
 		# Get y_i, using tan.
 		# Get v_y, using magic.
-		if a == 0 or a == pi: # completely horizontal ray
-			y_i = 0
-			v_y = p_y # The ray won't 'move' on the y-axis, thus v_y is always p_y, and increments by 0.
-		else:
-			y_i = int(math.tan(a) * (-1) * x_i)
-			v_y = int(p_y - math.tan(a)*(v_x-p_x))
+		y_i = int(math.tan(a) * (-1) * x_i)
+		v_y = int(p_y - math.tan(a)*(v_x-p_x))
 
 
 		for i in range(hl): # maximum number of iterations is the number of cells along the horizontal
-			try:
-				if world[v_x // TILE][v_y // TILE]:
-					vvalid = True
-					break
-			except IndexError:
-				if debug:
-					print("v. error!", v_x,v_y, '\n Ray:', p_x, p_y, a)
+			if v_x < 0 or v_y < 0 or v_x >= (hl*TILE) or v_y >= (vl*TILE):
+				break
+			if world[v_x // TILE][v_y // TILE]:
+				vvalid = True
 				break
 			v_x += x_i
 			v_y += y_i
-			if v_x >= (hl*TILE) or v_y >= (vl*TILE):
-				break
 
 		# Calculate distance. All credit goes to Pythagoras.
 		vdist = math.sqrt((v_x-p_x)**2 + (v_y-p_y)**2)
@@ -164,21 +155,16 @@ def cast(world, p_x, p_y, a):
 			h_x = p_x
 		else:
 			x_i = int(-1 * y_i / math.tan(a))
-			h_x = int(p_x - ((p_y - v_y) / math.tan(a)))
+			h_x = int(p_x - ((p_y - h_y) / math.tan(a)))
 
 		for i in range(vl):
-			try:
-				if world[h_x // TILE][h_y // TILE]:
-					hvalid = True
-					break
-			except IndexError:
-				if debug:
-					print("h. error!", h_x,h_y)
+			if h_x < 0 or h_y < 0 or h_x >= (hl*TILE) or h_y >= (vl*TILE):
+				break
+			if world[h_x // TILE][h_y // TILE]:
+				hvalid = True
 				break
 			h_x += x_i
 			h_y += y_i
-			if h_x >= (hl*TILE) or h_y >= (vl*TILE):
-				break
 
 		hdist = math.sqrt((h_x-p_x)**2 + (h_y-p_y)**2)
 

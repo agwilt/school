@@ -169,17 +169,17 @@ Danach wird \texttt{pygame} (Die Graphik-Library) initialisiert, und die zentral
 	\item Mit dieser Information den Spielzustand erneuern
 	\item Das Spiel rendern
 \end{enumerate}
-In meinem Beispiel ist Schritt 1. Nachschauen, welche Tasten gedr\"uckt werden. Entsprechend \"andert sich \texttt{p\_a}, wenn der Spieler sich drehen will, und \texttt{p\_x}/\texttt{p\_y}, wenn der Spieler sich bewegt. Dazu wird die \texttt{walk(world, p\_x, p\_y, a)} Funktion abgerufen, die mithilfe der \texttt{cast} Funktion pr\"uft, ob der Weg frei ist oder nicht. Danach wird das Spielfeld nach den \textit{Life}-Regeln von der \texttt{update(world)} Funktion aktualisiert.
+In meinem Beispiel ist Schritt 1 Nachschauen, welche Tasten gedr\"uckt werden. Entsprechend \"andert sich \texttt{p\_a}, wenn der Spieler sich drehen will, und \texttt{p\_x}/\texttt{p\_y}, wenn der Spieler sich bewegt. (Dazu wird die \texttt{walk(world, p\_x, p\_y, a)} Funktion abgerufen, die mithilfe der \texttt{cast} Funktion pr\"uft, ob der Weg frei ist oder nicht.) Danach wird das Spielfeld nach den \textit{Life}-Regeln von der \texttt{update(world)} Funktion aktualisiert.
 
 \subsubsection{\texttt{draw()}}
-Haupts\"achlich interessieren wir uns aber f\"ur die \texttt{draw(world)} Funktion, die das Ganze mithilfe des Raycasters rendert. Bevor das eigentliche Rendern anf\"angt, wird der Hintergrund gemalt. In diesem Fall hei\ss t das einfach, das Fenster wei\ss\ zu f\"ullen, und f\"ur den Boden ein hellgraues Rechteck zu malen:
+Haupts\"achlich interessieren wir uns aber f\"ur die \texttt{draw(world)} Funktion, die das Ganze mithilfe des Raycasters rendert. Bevor das eigentliche Raycasting anf\"angt, wird der Hintergrund gemalt. In diesem Fall hei\ss t das einfach, das Fenster wei\ss\ zu f\"ullen, und f\"ur den Boden ein hellgraues Rechteck zu malen:
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 screen.fill((255,255,255))
 pygame.draw.rect(screen, (200,200,200), \
 ((0,(plane_y/2)),(plane_x,plane_y)))
 \end{Verbatim}
 
-Wie beschrieben wirft man jetzt f\"ur jede Spalte des Fensters einen Strahl mit \texttt{cast}, und malt mit der Information einen Vertikalen Strich in der Spalte. Dazu muss man zuerst den Winkel des ersten Strahls finden. Dazu subtrahiert man die H\"alfte des Blickwinkels von dem Spieler-Winkel \texttt{p\_a}. Dabei muss man mod $2\pi$ bzw. 360\textdegree\ rechnen, damit man immer einen positiven Winkel hat.
+Wie beschrieben wirft man jetzt f\"ur jede Spalte des Fensters einen Strahl mit \texttt{cast}, und malt mit der Information einen vertikalen Strich in der Spalte. Dazu muss man zuerst den Winkel des ersten Strahls finden. Dazu subtrahiert man die H\"alfte des Blickwinkels von dem Spieler-Winkel \texttt{p\_a}. Dabei muss man mod $2\pi$ bzw. 360\textdegree\ rechnen, damit man immer einen positiven Winkel hat.
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 angle = (p_a - (fov/2)) % (2*pi)
 \end{Verbatim}
@@ -208,7 +208,7 @@ if not (a == 0.5*pi or a == 1.5*pi):
 \end{Verbatim}
 
 \paragraph{Der erste Punkt:}
-Um die Stellen zu finden, wo der Strahl die vertikalen Grenzen \"uberschreitet, m\"ussen wir einige Werte finden, unter anderem den Ersten Punkt. Betrachten wir zuerst \texttt{v\_x}. Wenn der Strahl nach rechts zeigt (\texttt{(a < 0.5 * pi) or (a > 1.5 * pi)}), ist \texttt{v\_x} der erste Punkt in der neuen Zelle ($TILE*\langle Spieler\_Zelle\rangle + TILE$). Sonst ist \texttt{v\_x} der ``letzte'' Punkt in der Zelle vor der, in der der Spieler steht, also $TILE*\langle Spieler\_Zelle\rangle - 1$. Um die Zelle des Spielers zu finden, teilt man ohne rest durch TILE; in python \texttt{p\_x // TILE}. Somit haben wir diesen code:
+Um die Stellen zu finden, wo der Strahl die vertikalen Grenzen \"uberschreitet, m\"ussen wir einige Werte finden, unter anderem den Ersten Punkt. Betrachten wir zuerst \texttt{v\_x}. Wenn der Strahl nach rechts zeigt, ist \texttt{v\_x} der erste Punkt in der neuen Zelle ($TILE*\langle Spieler\_Zelle\rangle + TILE$). Sonst ist \texttt{v\_x} der ``letzte'' Punkt in der Zelle vor der, in der der Spieler steht, also $TILE*\langle Spieler\_Zelle\rangle - 1$. Um die Zelle des Spielers zu finden, teilt man ohne rest durch TILE; in python \texttt{p\_x // TILE}. Somit haben wir diesen code:
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 if (a < 0.5 * pi) or (a > 1.5 * pi):
 	v_x = (p_x // TILE)*TILE + TILE
@@ -216,7 +216,7 @@ else:
 	v_x = (p_x // TILE)*TILE - 1
 \end{Verbatim}
 
-Die F\"alle $a = 0.5\pi$ und $a = 1.5\pi$ haben wir schon ausgeschlossen. Man k\"onnte nat\"urlich auch \texttt{((p\_x // TILE) + 1) * TILE} rechnen, aber ich glaube, es macht keinen Unterschied.
+Die F\"alle $a = 0.5\pi$ und $a = 1.5\pi$ haben wir schon ausgeschlossen. Man k\"onnte nat\"urlich auch f\"ur Strahlen nach Rechts \texttt{((p\_x // TILE) + 1) * TILE} rechnen, aber ich glaube, es macht keinen Unterschied.
 
 Schwieriger wird es, \texttt{v\_y} auszurechnen. Dazu werden wir $v\_y = p\_y + \Delta y$ rechnen, indem wir $\Delta y$ mit Tangens berechnen (Siehe Abb.~\ref{fig:vcheck1}). Da wir hier ein rechtwinkliges Dreieck haben, ist $\tan a = \frac{-\Delta y}{\Delta x}$, wobei zu beachten ist, dass $\Delta y$ negativ ist, weil der Winkel ``nach unten'' zeigt.
 Erst bei einem negativen Winkel (bzw. $a > \pi$) ist $\Delta y$ positiv.
@@ -270,7 +270,7 @@ y_i = int(math.tan(a) * (-1) * x_i)
 v_y = int(p_y - math.tan(a)*(v_x-p_x))
 \end{Verbatim}
 
-Leser, die den Code gelesen haben, haben vielleicht gemerkt, dass bei \texttt{y\_i} und \texttt{v\_y} um den Ausdruck die \texttt{int()} Funktion benutzt wird. Die Koordinaten m\"ussen noch immer \texttt{int}s bleiben, aber python konvertiert in einem Versuch, hilfreich zu sein, \texttt{int}s automatisch in \texttt{float}s.
+Wer den Code gelesen hat, hat vielleicht gemerkt, dass bei \texttt{y\_i} und \texttt{v\_y} um den Ausdruck die \texttt{int()} Funktion benutzt wird. Die Koordinaten m\"ussen noch immer \texttt{int}s bleiben, aber python konvertiert in einem Versuch, hilfreich zu sein, \texttt{int}s automatisch in \texttt{float}s.
 
 \paragraph{Die Schleife:}
 Jetzt, wo wir die n\"otigen Werte haben, k\"onnen wir die Schleife beginnen, die durch die Punkte iteriert. In der Schleife pr\"ufen wir einfach, ob der Punkt $(v\_x,v\_y)$ in einem ``vollen'' Feld oder nicht steht. Wie vorher beschrieben, ist die Methode, um von Koordinaten zu \texttt{world}-Koordinaten zu kommen, einfach $\lfloor k \div TILE \rfloor$, in python \texttt{k // TILE}. \\
@@ -279,8 +279,7 @@ Weil es passieren kann, dass der erste Punkt V schon au\ss erhalb des Spielfelde
 Ansonsten werden zu \texttt{v\_x} und \texttt{v\_y} \texttt{x\_i} bzw. \texttt{y\_i} addiert, und die Schleife fortgesetzt.
 Der resultierende Code ist also:
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
-# hl is the number of cells along the horizontal
-for i in range(hl):
+while True:
         if v_x < 0 or v_y < 0 or v_x >= (hl*TILE) or v_y >= (vl*TILE):
                 break
         if world[v_x // TILE][v_y // TILE]:
@@ -290,7 +289,7 @@ for i in range(hl):
         v_y += y_i
 \end{Verbatim}
 
-Zuletzt wird noch die Distanz zwischen den Punkten P und V berechnet, mit dem Satz des Pythagoras:
+Zuletzt wird noch mit dem Satz des Pythagoras die Distanz zwischen den Punkten P und V berechnet:
 \begin{Verbatim}[baselinestretch=1.0, xleftmargin=1cm]
 vdist = math.sqrt((v_x-p_x)**2 + (v_y-p_y)**2)
 \end{Verbatim}

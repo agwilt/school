@@ -54,10 +54,11 @@ p_a = 0 #pointing right
 plane_d = (plane_x / 2) / math.tan(fov/2) #distance from player to plane
 ray_angle = fov / plane_x #angle between rays
 
-world[9][12] = 1
-world[9][13] = 1
+world[8][13] = 1
+world[9][14] = 1
 world[10][12] = 1
 world[10][13] = 1
+world[10][14] = 1
 
 def update(oldworld):
 	"""Run one *life* iteration, return the new world"""

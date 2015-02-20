@@ -36,15 +36,16 @@ TILE = 32
 PI = math.pi
 
 # Variables (maybe read from config file?)
+TICK = 30
 PLANE_X = 640  # resolution of plane/screen
 PLANE_Y = 480
 FOV = math.radians(60)
 STEP = 20
 TURN = math.radians(5)
-
-# World Variables
 HL = 100  # horiz, vert height of field
 VL = 50
+
+# World Variables
 world = [[0 for i in range(VL)] for j in range(HL)]
 p_x = 32  # player x,y
 p_y = 32
@@ -240,7 +241,6 @@ def draw(world):
 pygame.init()
 screen = pygame.display.set_mode((PLANE_X,PLANE_Y))
 clock = pygame.time.Clock()
-tick = 30
 paused = False
 update_if_div_by_ten = 0
 
@@ -281,6 +281,6 @@ while True:
 	
 	# Draw and update stuff.
 	draw(world)
-	clock.tick(tick)
+	clock.tick(TICK)
 	if (not paused) and (update_if_div_by_ten % 10 == 0):
 		world = update(world)

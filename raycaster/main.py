@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"I hope you're not trying to import this in python. It's not really meant to work that way ..."
 
 import math
 import sys
@@ -42,22 +43,23 @@ step = 20
 turn = math.radians(5)
 
 # World Variables
-hl = 100  #horiz, vert height of field
+hl = 100  # horiz, vert height of field
 vl = 50
 world = [[0 for i in range(vl)] for j in range(hl)]
-p_x = 32  #player x,y
+p_x = 32  # player x,y
 p_y = 32
-p_a = 0  #pointing right
+p_a = 0  # pointing right
 
 # computed variables
 plane_d = (plane_x / 2) / math.tan(fov/2)  #distance from player to plane
-ray_angle = fov / plane_x  #angle between rays
+ray_angle = fov / plane_x  # angle between rays
 
 world[8][13] = 1
 world[9][14] = 1
 world[10][12] = 1
 world[10][13] = 1
 world[10][14] = 1
+
 
 def update(oldworld):
 	"""Run one *life* iteration, return the new world"""
@@ -68,9 +70,9 @@ def update(oldworld):
 	for col in range(hl):
 		for row in range(vl):
 			# Check row above, middle row, and row beneath.
-			ncount = oldworld[(col-1)%hl][(row-1)%vl] + oldworld[col][(row-1)%vl] + oldworld[(col+1)%hl][(row-1)%vl]
-			ncount += oldworld[(col-1)%hl][row] + oldworld[(col+1)%hl][row]
-			ncount += oldworld[(col-1)%hl][(row+1)%vl] + oldworld[col][(row+1)%vl] + oldworld[(col+1)%hl][(row+1)%vl]
+			ncount = oldworld[(col-1) % hl][(row-1) % vl] + oldworld[col][(row-1) % vl] + oldworld[(col+1) % hl][(row-1) % vl]
+			ncount += oldworld[(col-1) % hl][row] + oldworld[(col+1) % hl][row]
+			ncount += oldworld[(col-1) % hl][(row+1) % vl] + oldworld[col][(row+1) % vl] + oldworld[(col+1) % hl][(row+1) % vl]
 			# Do things depending on the number of neighbouring cells.
 			if (ncount < 2) or (ncount > 3):
 				newworld[col][row] = 0
@@ -123,7 +125,6 @@ def cast(world, p_x, p_y, a):
 		# Get v_y, using magic.
 		y_i = int(math.tan(a) * (-1) * x_i)
 		v_y = int(p_y - math.tan(a)*(v_x-p_x))
-
 
 		while True:
 			if v_x < 0 or v_y < 0 or v_x >= (hl*TILE) or v_y >= (vl*TILE):
@@ -259,13 +260,13 @@ while True:
 	if not paused:
 		if keys[K_ESCAPE]:
 			quit()
-		if keys[K_UP] or keys[K_w]:  # go forwards
+		if keys[K_UP]:  # go forwards
 			p_x, p_y = walk(world, p_x, p_y, p_a)
-		if keys[K_DOWN] or keys[K_s]:  # go back
+		if keys[K_DOWN]:  # go back
 			p_x, p_y = walk(world, p_x, p_y, (p_a + pi))
-		if keys[K_a] or keys[K_COMMA]:  # strafe left
+		if keys[K_COMMA]:  # strafe left
 			p_x, p_y = walk(world, p_x, p_y, (p_a - (0.5*pi)))
-		if keys[K_d] or keys[K_PERIOD]:  # strafe right
+		if keys[K_PERIOD]:  # strafe right
 			p_x, p_y = walk(world, p_x, p_y, (p_a + (0.5*pi)))
 		if keys[K_LEFT]:  # turn left
 			p_a = (p_a - turn) % (2*pi)

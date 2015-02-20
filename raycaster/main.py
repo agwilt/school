@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
-import time
 import math
 import sys
 import pygame
 from pygame.locals import *
 
 # Angles are measured in radians, because that's what the math module uses.
-# Thus, right is 0, down is 0.5*math.pi, left is math.pi, and up is 1.5*math.pi.
+# Thus, right is 0, down is math.pi, left is math.pi, and up is 1.5*math.pi.
 # Also, an angle should always be positive, and under 2*math.pi.
 
 #   y
@@ -36,23 +35,23 @@ TILE = 32
 pi = math.pi
 
 # Variables (maybe read from config file?)
-plane_x = 640 # resolution of plane/screen
+plane_x = 640  # resolution of plane/screen
 plane_y = 480
 fov = math.radians(60)
 step = 20
 turn = math.radians(5)
 
 # World Variables
-hl = 100 #horiz, vert height of field
+hl = 100  #horiz, vert height of field
 vl = 50
 world = [[0 for i in range(vl)] for j in range(hl)]
-p_x = 32 #player x,y
+p_x = 32  #player x,y
 p_y = 32
-p_a = 0 #pointing right
+p_a = 0  #pointing right
 
 # computed variables
-plane_d = (plane_x / 2) / math.tan(fov/2) #distance from player to plane
-ray_angle = fov / plane_x #angle between rays
+plane_d = (plane_x / 2) / math.tan(fov/2)  #distance from player to plane
+ray_angle = fov / plane_x  #angle between rays
 
 world[8][13] = 1
 world[9][14] = 1
@@ -113,7 +112,7 @@ def cast(world, p_x, p_y, a):
 
 		# Get x_i (+TILE if pointing right, -TILE if left).
 		# Get v_x (x coord of the first point).
-		if (a < 0.5 * pi) or (a > 1.5 * pi): # pointing right
+		if (a < 0.5 * pi) or (a > 1.5 * pi):  # pointing right
 			x_i = TILE
 			v_x = (p_x // TILE)*TILE + TILE
 		else:
@@ -143,7 +142,7 @@ def cast(world, p_x, p_y, a):
 	if not (a == 0 or a == pi):
 
 		# Get y_i and h_y
-		if a < pi: # pointing down
+		if a < pi:  # pointing down
 			y_i = -1 * TILE
 			h_y = (p_y // TILE)*TILE - 1
 		else:
@@ -151,7 +150,7 @@ def cast(world, p_x, p_y, a):
 			h_y = (p_y // TILE)*TILE + TILE
 
 		# Get x_i and h_x
-		if a == 0.5*pi or a == 1.5*pi: # vertical ray
+		if a == 0.5*pi or a == 1.5*pi:  # vertical ray
 			x_i = 0
 			h_x = p_x
 		else:
@@ -170,13 +169,13 @@ def cast(world, p_x, p_y, a):
 		hdist = math.sqrt((h_x-p_x)**2 + (h_y-p_y)**2)
 
 	# Return the shortest distance.
-	if vvalid and hvalid: # both rays collide
+	if vvalid and hvalid:  # both rays collide
 		return min(vdist, hdist)
-	elif vvalid: # only vertical collision
+	elif vvalid:  # only vertical collision
 		return vdist
 	elif hvalid:
 		return hdist
-	else: # no collision
+	else:  # no collision
 		return -1
 
 
@@ -196,7 +195,7 @@ def walk(world, p_x, p_y, a):
 	# If we're in a block, don't walk.
 	if world[p_x // TILE][p_y // TILE] == 1:
 		return (p_x,p_y)
-	if cast(world, p_x, p_y, p_a) >= step: # TODO: Make this better.
+	if cast(world, p_x, p_y, p_a) >= step:  # TODO: Make this better.
 		p_y = int(p_y - (math.sin(a) * step)) % (vl*TILE)
 		p_x = int(p_x + (math.cos(a) * step)) % (hl*TILE)
 	return (p_x, p_y)
@@ -260,17 +259,17 @@ while True:
 	if not paused:
 		if keys[K_ESCAPE]:
 			quit()
-		if keys[K_UP] or keys[K_w]: # go forwards
+		if keys[K_UP] or keys[K_w]:  # go forwards
 			p_x, p_y = walk(world, p_x, p_y, p_a)
-		if keys[K_DOWN] or keys[K_s]: # go back
+		if keys[K_DOWN] or keys[K_s]:  # go back
 			p_x, p_y = walk(world, p_x, p_y, (p_a + pi))
-		if keys[K_a] or keys[K_COMMA]: # strafe left
+		if keys[K_a] or keys[K_COMMA]:  # strafe left
 			p_x, p_y = walk(world, p_x, p_y, (p_a - (0.5*pi)))
-		if keys[K_d] or keys[K_PERIOD]: # strafe right
+		if keys[K_d] or keys[K_PERIOD]:  # strafe right
 			p_x, p_y = walk(world, p_x, p_y, (p_a + (0.5*pi)))
-		if keys[K_LEFT]: # turn left
+		if keys[K_LEFT]:  # turn left
 			p_a = (p_a - turn) % (2*pi)
-		if keys[K_RIGHT]: # turn right
+		if keys[K_RIGHT]:  # turn right
 			p_a = (p_a + turn) % (2*pi)
 
 	# Check if you died. We don't want this in debug mode.

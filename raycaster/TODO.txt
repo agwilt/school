@@ -2,6 +2,7 @@ fix walking: controls and checking
 add that line in horiz. checking. it *does* have a TODO comment ...
 
 fix structure, get everything in functions
+ - make main() fuktn, and init()
 
 A ray caster explained using only the top 1000 most used words:
 LINE-THROW-CHECKER

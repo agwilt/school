@@ -45,22 +45,9 @@ TURN = math.radians(5)
 HL = 100  # horiz, vert height of field
 VL = 50
 
-# World Variables
-world = [[0 for i in range(VL)] for j in range(HL)]
-p_x = 32  # player x,y
-p_y = 32
-p_a = 0  # pointing right
-
 # computed variables
 PLANE_D = (PLANE_X / 2) / math.tan(FOV/2)  #distance from player to plane
 RAY_ANGLE = FOV / PLANE_X  # angle between rays
-
-world[8][13] = 1
-world[9][14] = 1
-world[10][12] = 1
-world[10][13] = 1
-world[10][14] = 1
-
 
 def update(oldworld):
 	"""Run one *life* iteration, return the new world"""
@@ -197,13 +184,13 @@ def walk(world, p_x, p_y, a):
 	# If we're in a block, don't walk.
 	if world[p_x // TILE][p_y // TILE] == 1:
 		return (p_x,p_y)
-	if cast(world, p_x, p_y, p_a) >= STEP:  # TODO: Make this better.
+	if cast(world, p_x, p_y, a) >= STEP:  # TODO: Make this better.
 		p_y = int(p_y - (math.sin(a) * STEP)) % (VL*TILE)
 		p_x = int(p_x + (math.cos(a) * STEP)) % (HL*TILE)
 	return (p_x, p_y)
 
 
-def draw(world):
+def draw(world, p_x, p_y, p_a, screen):
 	"""render the scene, by casting rays for each column"""
 	# First we draw the background.
 	screen.fill((255,255,255))
@@ -237,50 +224,66 @@ def draw(world):
 		print('\n')
 
 
-# Initialize clock and pygame stuff.
-pygame.init()
-screen = pygame.display.set_mode((PLANE_X,PLANE_Y))
-clock = pygame.time.Clock()
-paused = False
-update_if_div_by_ten = 0
+def main():
+	# Initialize clock and pygame stuff.
+	pygame.init()
+	screen = pygame.display.set_mode((PLANE_X,PLANE_Y))
+	clock = pygame.time.Clock()
+	paused = False
+	update_if_div_by_ten = 0
 
-while True:
-	update_if_div_by_ten += 1
-	# First get a list of pressed keys.
-	keys = pygame.key.get_pressed()
+	# World Variables
+	world = [[0 for i in range(VL)] for j in range(HL)]
+	p_x = 32  # player x,y
+	p_y = 32
+	p_a = 0  # pointing right
 
-	for event in pygame.event.get():
-		if event.type == QUIT:
-			quit()
+	world[8][13] = 1
+	world[9][14] = 1
+	world[10][12] = 1
+	world[10][13] = 1
+	world[10][14] = 1
 
-	if keys[K_p]:
-		paused = not paused
+	while True:
+		update_if_div_by_ten += 1
+		# First get a list of pressed keys.
+		keys = pygame.key.get_pressed()
 
-	# These are the game controls.
-	if not paused:
-		if keys[K_ESCAPE]:
-			quit()
-		if keys[K_UP]:  # go forwards
-			p_x, p_y = walk(world, p_x, p_y, p_a)
-		if keys[K_DOWN]:  # go back
-			p_x, p_y = walk(world, p_x, p_y, (p_a + PI))
-		if keys[K_COMMA]:  # strafe left
-			p_x, p_y = walk(world, p_x, p_y, (p_a - (0.5*PI)))
-		if keys[K_PERIOD]:  # strafe right
-			p_x, p_y = walk(world, p_x, p_y, (p_a + (0.5*PI)))
-		if keys[K_LEFT]:  # turn left
-			p_a = (p_a - TURN) % (2*PI)
-		if keys[K_RIGHT]:  # turn right
-			p_a = (p_a + TURN) % (2*PI)
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				quit()
 
-	# Check if you died. We don't want this in DEBUG mode.
-	if not GOD:
-		if world[p_x // TILE][p_y // TILE] == 1:
-			print("You got mown over. By a *cell*.")
-			quit()
-	
-	# Draw and update stuff.
-	draw(world)
-	clock.tick(TICK)
-	if (not paused) and (update_if_div_by_ten % 10 == 0):
-		world = update(world)
+		if keys[K_p]:
+			paused = not paused
+
+		# These are the game controls.
+		if not paused:
+			if keys[K_ESCAPE]:
+				quit()
+			if keys[K_UP]:  # go forwards
+				p_x, p_y = walk(world, p_x, p_y, p_a)
+			if keys[K_DOWN]:  # go back
+				p_x, p_y = walk(world, p_x, p_y, (p_a + PI))
+			if keys[K_COMMA]:  # strafe left
+				p_x, p_y = walk(world, p_x, p_y, (p_a - (0.5*PI)))
+			if keys[K_PERIOD]:  # strafe right
+				p_x, p_y = walk(world, p_x, p_y, (p_a + (0.5*PI)))
+			if keys[K_LEFT]:  # turn left
+				p_a = (p_a - TURN) % (2*PI)
+			if keys[K_RIGHT]:  # turn right
+				p_a = (p_a + TURN) % (2*PI)
+
+		# Check if you died. We don't want this in DEBUG mode.
+		if not GOD:
+			if world[p_x // TILE][p_y // TILE] == 1:
+				print("You got mown over. By a *cell*.")
+				quit()
+		
+		# Draw and update stuff.
+		draw(world, p_x, p_y, p_a, screen)
+		clock.tick(TICK)
+		if (not paused) and (update_if_div_by_ten % 10 == 0):
+			world = update(world)
+
+if __name__ == "__main__":
+	main()

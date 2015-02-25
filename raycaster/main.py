@@ -230,7 +230,7 @@ def main():
 	screen = pygame.display.set_mode((PLANE_X,PLANE_Y))
 	clock = pygame.time.Clock()
 	paused = False
-	update_if_div_by_ten = 0
+	should_update = 0
 
 	# World Variables
 	world = [[0 for i in range(VL)] for j in range(HL)]
@@ -245,7 +245,7 @@ def main():
 	world[10][14] = 1
 
 	while True:
-		update_if_div_by_ten += 1
+		should_update += 1
 		# First get a list of pressed keys.
 		keys = pygame.key.get_pressed()
 
@@ -282,7 +282,7 @@ def main():
 		# Draw and update stuff.
 		draw(world, p_x, p_y, p_a, screen)
 		clock.tick(TICK)
-		if (not paused) and (update_if_div_by_ten % 10 == 0):
+		if (not paused) and (should_update % 5 == 0):
 			world = update(world)
 
 if __name__ == "__main__":

@@ -180,13 +180,9 @@ def dist_to_offset(dist):
 
 
 def walk(world, p_x, p_y, a):
-	"""Return new cords (p_x, p_y). You cannot walk into live cells or the walls"""
-	# If we're in a block, don't walk.
-	if world[p_x // TILE][p_y // TILE] == 1:
-		return (p_x,p_y)
-	if cast(world, p_x, p_y, a) >= STEP:  # TODO: Make this better.
-		p_y = int(p_y - (math.sin(a) * STEP)) % (VL*TILE)
-		p_x = int(p_x + (math.cos(a) * STEP)) % (HL*TILE)
+	"""Return new cords (p_x, p_y)."""
+	p_y = int(p_y - (math.sin(a) * STEP)) % (VL*TILE)
+	p_x = int(p_x + (math.cos(a) * STEP)) % (HL*TILE)
 	return (p_x, p_y)
 
 

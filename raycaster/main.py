@@ -58,9 +58,11 @@ def update(oldworld):
 	for col in range(HL):
 		for row in range(VL):
 			# Check row above, middle row, and row beneath.
-			ncount = oldworld[(col-1) % HL][(row-1) % VL] + oldworld[col][(row-1) % VL] + oldworld[(col+1) % HL][(row-1) % VL]
+			ncount = oldworld[(col-1) % HL][(row-1) % VL] + \
+			oldworld[col][(row-1) % VL] + oldworld[(col+1) % HL][(row-1) % VL]
 			ncount += oldworld[(col-1) % HL][row] + oldworld[(col+1) % HL][row]
-			ncount += oldworld[(col-1) % HL][(row+1) % VL] + oldworld[col][(row+1) % VL] + oldworld[(col+1) % HL][(row+1) % VL]
+			ncount += oldworld[(col-1) % HL][(row+1) % VL] + \
+			oldworld[col][(row+1) % VL] + oldworld[(col+1) % HL][(row+1) % VL]
 			# Do things depending on the number of neighbouring cells.
 			if (ncount < 2) or (ncount > 3):
 				newworld[col][row] = 0
@@ -87,11 +89,13 @@ def cast(world, p_x, p_y, a):
 	# max. it: use HL, VL
 	# {x,y}_i are intervals, h_{x,y} is the horiz point, v_{x,y} vertical
 
-	# If we are standing *in* a block, we return 0, which dist_to_offset() can handle.
+	# If we are standing *in* a block, we return 0, which
+	# dist_to_offset() can handle.
 	if world[p_x // TILE][p_y // TILE] == 1:
 		return 0
 
-	# By default, h and v checks are invalid. If we find a wall, then they become valid.
+	# By default, h and v checks are invalid.
+	# If we find a wall, then they become valid.
 	vvalid = False
 	hvalid = False
 
@@ -199,7 +203,9 @@ def draw(world, p_x, p_y, p_a, screen):
 	for col in range(PLANE_X):
 		dist = cast(world, p_x, p_y, angle)
 		if dist != -1:
-			pygame.draw.line(screen, (0,0,0), (col,((PLANE_Y/2) - dist_to_offset(dist))), (col, (PLANE_Y/2) + dist_to_offset(dist)))
+			pygame.draw.line(screen, (0,0,0), \
+			(col,((PLANE_Y/2) - dist_to_offset(dist))), \
+			(col, (PLANE_Y/2) + dist_to_offset(dist)))
 		angle = (angle + RAY_ANGLE) % (2*PI)
 	pygame.display.flip()
 

@@ -225,15 +225,20 @@ def draw(world, p_x, p_y, p_a, screen):
 			print('')
 		print('\n')
 
-def set_world(world):
+def init_world():
 	"Change some values in the input array."
 	# TODO: Load this from a config file ...
 	# Then I will also need to get hl and vl from world, not the other way round
+
+	world = [[0 for i in range(VL)] for j in range(HL)]
+
 	world[8][13] = 1
 	world[9][14] = 1
 	world[10][12] = 1
 	world[10][13] = 1
 	world[10][14] = 1
+
+	return world
 
 
 def main():
@@ -245,12 +250,11 @@ def main():
 	should_update = 0
 
 	# World Variables
-	world = [[0 for i in range(VL)] for j in range(HL)]
 	p_x = 32  # player x,y
 	p_y = 32
 	p_a = 0  # pointing right
 
-	set_world(world)
+	world = init_world()
 
 	while True:
 		should_update += 1

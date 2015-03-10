@@ -225,6 +225,16 @@ def draw(world, p_x, p_y, p_a, screen):
 			print('')
 		print('\n')
 
+def set_world(world):
+	"Change some values in the input array."
+	# TODO: Load this from a config file ...
+	# Then I will also need to get hl and vl from world, not the other way round
+	world[8][13] = 1
+	world[9][14] = 1
+	world[10][12] = 1
+	world[10][13] = 1
+	world[10][14] = 1
+
 
 def main():
 	# Initialize clock and pygame stuff.
@@ -240,11 +250,7 @@ def main():
 	p_y = 32
 	p_a = 0  # pointing right
 
-	world[8][13] = 1
-	world[9][14] = 1
-	world[10][12] = 1
-	world[10][13] = 1
-	world[10][14] = 1
+	set_world(world)
 
 	while True:
 		should_update += 1

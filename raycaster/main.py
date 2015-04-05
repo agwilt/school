@@ -81,7 +81,9 @@ def quit():
 
 
 def cast(world, p_x, p_y, a):
-	"""Cast a ray with angle a, and return a distance. -1 if no collision. Can also return 0."""
+	"""Cast a ray with angle a, and return a distance.
+		-1 if no collision.
+		Can also return 0."""
 
 	if type(p_x) != int:
 		exit(123)
@@ -173,7 +175,8 @@ def cast(world, p_x, p_y, a):
 
 
 def dist_to_offset(dist):
-	"""Take a distance (to an object), and return the offset from the middle to start drawing the column."""
+	"""Take a distance (to an object), and return the offset from the middle to
+	start drawing the column."""
 	if dist == 0:
 		return PLANE_Y * 0.5
 	# Distance of -1 means no collision. So it shouldn't render anything.
@@ -290,7 +293,7 @@ def main():
 			if world[p_x // TILE][p_y // TILE] == 1:
 				print("You got mown over. By a *cell*.")
 				quit()
-		
+
 		# Draw and update stuff.
 		draw(world, p_x, p_y, p_a, screen)
 		clock.tick(TICK)
